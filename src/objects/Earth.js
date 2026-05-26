@@ -1,29 +1,76 @@
 import * as THREE from 'three';
+import { Planet } from '../abstract/Planet.js';
 
-export class Earth {
+export class Earth extends Planet {
+    static defaultDistance = 1500;
+    static defaultOrbitSpeed = 0.0015;
+    static order = 3;
+
     constructor() {
-        this.mesh = null;
-    }
-
-    create() {
-        const earth_geom = new THREE.SphereGeometry(50, 128, 128);
-        const earth_mat = new THREE.MeshStandardMaterial({
+        const config = {
+            name: 'Earth',
+            radius: 50,
+            distance: Earth.defaultDistance,
             color: 0x44aaff,
+            emissive: 0x004466,
+            emissiveIntensity: 0.1,
             metalness: 0.3,
             roughness: 0.5,
-            emissive: 0x004466,
-            emissiveIntensity: 0.1
+            orbitSpeed: Earth.defaultOrbitSpeed,
+            rotationSpeed: 0.005,
+            hasAtmosphere: true,
+            atmosphereColor: 0x88aaff,
+            atmosphereOpacity: 0.15
+        };
+
+        super(config);
+
+        // Специфичные для Земли параметры
+        this.waterColor = 0x3388ff;
+        this.landColor = 0x44aa66;
+    }
+
+    createCustomMaterial() {
+        // Для реальной текстуры Земли можно загрузить изображение
+        // Пока используем улучшенный стандартный материал
+        const textureLoader = new THREE.TextureLoader();
+
+        // Опционально: загрузка текстур
+        // const earthMap = textureLoader.load('/textures/earth_map.jpg');
+        // const earthSpecularMap = textureLoader.load('/textures/earth_specular.jpg');
+
+        return new THREE.MeshStandardMaterial({
+            color: this.color,
+            metalness: this.metalness,
+            roughness: this.roughness,
+            emissive: this.emissive,
+            emissiveIntensity: this.emissiveIntensity
         });
-        this.mesh = new THREE.Mesh(earth_geom, earth_mat);
-        this.mesh.position.x = 1500;
-        return this.mesh;
     }
 
-    getMesh() {
-        return this.mesh;
+    // Специфический метод для Земли
+    addClouds() {
+        const cloudGeometry = new THREE.SphereGeometry(this.radius * 1.01, 128, 128);
+        const cloudMaterial = new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            transparent: true,
+            opacity: 0.1,
+            blending: THREE.AdditiveBlending
+        });
+        const clouds = new THREE.Mesh(cloudGeometry, cloudMaterial);
+        this.planetGroup.add(clouds);
+
+        // Анимация облаков
+        this.clouds = clouds;
+        return clouds;
     }
 
-    getPosition() {
-        return this.mesh ? this.mesh.position : null;
+    update(deltaTime = 1) {
+        super.update(deltaTime);
+
+        // Вращение облаков немного быстрее
+        if (this.clouds) {
+            this.clouds.rotation.y += this.rotationSpeed * 1.2 * deltaTime;
+        }
     }
 }

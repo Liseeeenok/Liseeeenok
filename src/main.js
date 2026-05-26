@@ -3,11 +3,13 @@ import { SceneManager } from './core/SceneManager.js';
 import { CameraManager } from './core/CameraManager.js';
 import { RendererManager } from './core/RendererManager.js';
 import { Sun } from './objects/Sun.js';
-import { Earth } from './objects/Earth.js';
 import { StarField } from './objects/StarField.js';
 import { ParticleSystem } from './effects/ParticleSystem.js';
 import { LightingSystem } from './lights/LightingSystem.js';
 import { AnimationController } from './animations/AnimationController.js';
+
+import { Earth } from './objects/Earth.js';
+import { Mars } from './objects/Mars.js';
 
 class SolarSystemApp {
     constructor() {
@@ -15,16 +17,24 @@ class SolarSystemApp {
         this.cameraManager = new CameraManager();
         this.rendererManager = new RendererManager();
         this.sun = new Sun();
-        this.earth = new Earth();
         this.starField = new StarField();
         this.particleSystem = new ParticleSystem();
         this.lightingSystem = new LightingSystem();
         this.animationController = null;
 
         this.mainGroup = new THREE.Object3D();
+        this.planets = [];
+
+        this.planetClasses = [
+            Earth,
+            Mars,
+            // Venus,    // Раскомментировать когда добавим
+            // Jupiter,  // Раскомментировать когда добавим
+            // Saturn    // Раскомментировать когда добавим
+        ];
     }
 
-    init() {
+    async init() {
         // Инициализация базовых компонентов
         const scene = this.sceneManager.init();
         const camera = this.cameraManager.init();
@@ -32,21 +42,20 @@ class SolarSystemApp {
 
         // Создание объектов
         const sunGroup = this.sun.create();
-        const earthMesh = this.earth.create();
         const starFieldMesh = this.starField.create();
         const sunParticles = this.particleSystem.createAroundSun();
 
         // Добавление объектов в группу
         this.mainGroup.add(sunGroup);
-        this.mainGroup.add(earthMesh);
         this.mainGroup.add(sunParticles);
+
+        await this.createAllPlanets();
 
         scene.add(this.mainGroup);
         scene.add(starFieldMesh);
 
         // Создание освещения
         this.lightingSystem.createLights(scene);
-        const earthLight = this.lightingSystem.createEarthLight(scene, this.earth.getPosition());
 
         // Инициализация анимации
         this.animationController = new AnimationController(camera, renderer, scene);
@@ -54,18 +63,50 @@ class SolarSystemApp {
 
         // Запуск анимации с кастомным update
         this.animationController.startAnimation(() => {
-            this.update(earthLight);
+            this.update();
         });
 
         // Обработка resize
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
-    update(earthLight) {
-        // Вращение всей группы
-        this.mainGroup.rotation.y += 0.0015;
+    async createAllPlanets() {
+        // Автоматическое создание всех зарегистрированных планет
+        const planetPromises = this.planetClasses.map(async (PlanetClass, index) => {
+            const planet = new PlanetClass();
 
-        // Вращение частиц
+            // Автоматическая настройка орбитальных параметров
+            // Можно добавить расстояние или другие параметры через статические методы
+            if (PlanetClass.defaultDistance) {
+                planet.distance = PlanetClass.defaultDistance;
+            }
+
+            // Создание планеты
+            const planetGroup = planet.create();
+            this.mainGroup.add(planetGroup);
+
+            // Добавление специфических эффектов
+            if (planet.addClouds && typeof planet.addClouds === 'function') {
+                planet.addClouds();
+            }
+
+            if (planet.createDustStorm && typeof planet.createDustStorm === 'function') {
+                planet.createDustStorm();
+            }
+
+            this.planets.push(planet);
+
+            console.log(`✅ Planet created: ${planet.name} (Distance: ${planet.distance}, Radius: ${planet.radius})`);
+            return planet;
+        });
+
+        await Promise.all(planetPromises);
+
+        // Сортировка планет по расстоянию от Солнца (для порядка)
+        this.planets.sort((a, b) => a.distance - b.distance);
+    }
+
+    update() {
         this.mainGroup.children.forEach(child => {
             if (child.isPoints) {
                 child.rotation.y += 0.002;
@@ -73,11 +114,9 @@ class SolarSystemApp {
             }
         });
 
-        // Обновление позиции света Земли
-        const earthPos = this.earth.getPosition();
-        if (earthPos && earthLight) {
-            this.lightingSystem.updateEarthLightPosition(earthPos);
-        }
+        this.planets.forEach(planet => {
+            planet.update();
+        });
     }
 
     onWindowResize() {
