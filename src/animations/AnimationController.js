@@ -14,7 +14,7 @@ export class AnimationController {
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
         this.controls.rotateSpeed = 1.0;
-        this.controls.zoomSpeed = 1.0;
+        this.controls.zoomSpeed = 0.1;
         this.controls.enablePan = false;
         this.controls.target.set(0, 0, 0);
         return this.controls;
