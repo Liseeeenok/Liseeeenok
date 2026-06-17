@@ -7,6 +7,7 @@ import { StarField } from './objects/StarField.js';
 import { ParticleSystem } from './effects/ParticleSystem.js';
 import { LightingSystem } from './lights/LightingSystem.js';
 import { AnimationController } from './animations/AnimationController.js';
+import { InteractionManager } from './interaction/InteractionManager.js';
 
 import { Earth } from './objects/Earth.js';
 import { Mars } from './objects/Mars.js';
@@ -21,6 +22,7 @@ class SolarSystemApp {
         this.particleSystem = new ParticleSystem();
         this.lightingSystem = new LightingSystem();
         this.animationController = null;
+        this.interactionManager = null;
 
         this.mainGroup = new THREE.Object3D();
         this.planets = [];
@@ -61,9 +63,23 @@ class SolarSystemApp {
         this.animationController = new AnimationController(camera, renderer, scene);
         this.animationController.initControls();
 
+        // Инициализация InteractionManager
+        this.interactionManager = new InteractionManager(scene, camera, renderer);
+        
+        // Регистрируем планеты для взаимодействия
+        this.planets.forEach(planet => {
+            this.interactionManager.registerPlanet(planet);
+        });
+
         // Запуск анимации с кастомным update
         this.animationController.startAnimation(() => {
             this.update();
+
+            const controls = this.animationController.getControls();
+            if (this.interactionManager) {
+                this.interactionManager.currentControls = controls;
+                this.interactionManager.update(controls);
+            }
         });
 
         // Обработка resize
@@ -122,6 +138,9 @@ class SolarSystemApp {
     onWindowResize() {
         this.cameraManager.onWindowResize();
         this.rendererManager.onWindowResize();
+        if (this.interactionManager) {
+            this.interactionManager.onResize();
+        }
     }
 }
 

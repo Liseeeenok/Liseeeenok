@@ -1,4 +1,5 @@
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import * as THREE from 'three';
 
 export class AnimationController {
     constructor(camera, renderer, scene) {
@@ -17,6 +18,10 @@ export class AnimationController {
         this.controls.zoomSpeed = 0.1;
         this.controls.enablePan = false;
         this.controls.target.set(0, 0, 0);
+
+        // Сохраняем ссылку на target для InteractionManager
+        this.controls.target = new THREE.Vector3(0, 0, 0);
+
         return this.controls;
     }
 
@@ -42,5 +47,9 @@ export class AnimationController {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
         }
+    }
+
+    getControls() {
+        return this.controls;
     }
 }

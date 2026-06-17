@@ -8,6 +8,7 @@ export class Planet {
     constructor(config) {
         // Конфигурация планеты
         this.name = config.name || 'Planet';
+        this.description = config.description || 'A mysterious planet';
         this.radius = config.radius || 50;
         this.distance = config.distance || this.constructor.defaultDistance;
         this.color = config.color || 0x44aaff;
@@ -19,6 +20,14 @@ export class Planet {
         // Орбитальные параметры
         this.orbitSpeed = config.orbitSpeed || this.constructor.defaultOrbitSpeed;
         this.rotationSpeed = config.rotationSpeed || 0.005;
+
+        // Параметры замедления при наведении
+        this.slowDownFactor = config.slowDownFactor || 0.1; // На сколько замедлять (0.1 = 10% от скорости)
+        this.isSlowed = false;
+        this.instantStop = false;
+        this.currentOrbitSpeed = this.orbitSpeed;
+        this.currentRotationSpeed = this.rotationSpeed;
+        this.smoothTransitionSpeed = config.smoothTransitionSpeed || 0.05; // Скорость плавного перехода
 
         // Атмосфера
         this.hasAtmosphere = config.hasAtmosphere || false;
@@ -33,6 +42,16 @@ export class Planet {
 
         // Начальный угол на орбите (в радианах)
         this.orbitAngle = config.orbitAngle || Math.random() * Math.PI * 2;
+
+        // Для взаимодействия
+        this.isHovered = false;
+        this.originalEmissiveIntensity = this.emissiveIntensity;
+        this.hoverEmissiveIntensity = 0.5;
+        this.hoverColor = 0xffffff;
+
+        // Для эффектов
+        this.glowMesh = null;
+        this.label = null;
     }
 
     // Абстрактные методы (должны быть переопределены)
@@ -60,6 +79,10 @@ export class Planet {
         const geometry = new THREE.SphereGeometry(this.radius, 128, 128);
         this.mesh = new THREE.Mesh(geometry, material);
 
+        this.material = material;
+
+        this.createGlowEffect();
+
         // Добавление атмосферы, если есть
         if (this.hasAtmosphere) {
             this.addAtmosphere();
@@ -67,6 +90,10 @@ export class Planet {
 
         // Настройка групп
         this.planetGroup.add(this.mesh);
+        
+        if (this.glowMesh) {
+            this.planetGroup.add(this.glowMesh);
+        }
         if (this.atmosphere) {
             this.planetGroup.add(this.atmosphere);
         }
@@ -77,6 +104,18 @@ export class Planet {
         this.updateOrbitPosition();
 
         return this.orbitGroup;
+    }
+
+    createGlowEffect() {
+        const glowGeometry = new THREE.SphereGeometry(this.radius * 1.5, 64, 64);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: this.hoverColor,
+            transparent: true,
+            opacity: 0,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending
+        });
+        this.glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
     }
 
     addAtmosphere() {
@@ -99,7 +138,7 @@ export class Planet {
 
     update(deltaTime = 1) {
         // Обновление угла орбиты
-        this.orbitAngle += this.orbitSpeed * deltaTime;
+        this.orbitAngle += this.currentOrbitSpeed * deltaTime;
         if (this.orbitAngle > Math.PI * 2) {
             this.orbitAngle -= Math.PI * 2;
         }
@@ -108,11 +147,60 @@ export class Planet {
         this.updateOrbitPosition();
 
         // Вращение планеты вокруг своей оси
-        this.planetGroup.rotation.y += this.rotationSpeed * deltaTime;
+        this.planetGroup.rotation.y += this.currentRotationSpeed * deltaTime;
+
+        // Плавное обновление скоростей
+        this.updateSpeedTransition();
+    }
+
+    updateSpeedTransition() {
+        // Плавный переход скорости орбиты
+        const targetOrbitSpeed = this.isSlowed ? this.orbitSpeed * this.slowDownFactor : this.orbitSpeed;
+        
+        if (this.instantStop) {
+            // Мгновенная остановка
+            this.currentOrbitSpeed = 0;
+            this.currentRotationSpeed = 0;
+        } else {
+            this.currentOrbitSpeed += (targetOrbitSpeed - this.currentOrbitSpeed) * this.smoothTransitionSpeed;
+            
+            // Плавный переход скорости вращения
+            const targetRotationSpeed = this.isSlowed ? this.rotationSpeed * this.slowDownFactor : this.rotationSpeed;
+            this.currentRotationSpeed += (targetRotationSpeed - this.currentRotationSpeed) * this.smoothTransitionSpeed;
+        }
+    }
+
+    // Методы для взаимодействия
+    onHoverStart() {
+        this.isHovered = true;
+        this.isSlowed = true;
+        if (this.material) {
+            this.material.emissive.setHex(this.hoverColor);
+            this.material.emissiveIntensity = this.hoverEmissiveIntensity;
+        }
+        if (this.glowMesh) {
+            this.glowMesh.material.opacity = 0.3;
+        }
+    }
+
+    onHoverEnd() {
+        this.isHovered = false;
+        this.isSlowed = false;
+        if (this.material) {
+            this.material.emissive.setHex(this.emissive);
+            this.material.emissiveIntensity = this.originalEmissiveIntensity;
+        }
+        if (this.glowMesh) {
+            this.glowMesh.material.opacity = 0;
+        }
     }
 
     getPosition() {
-        return this.orbitGroup ? this.orbitGroup.position : null;
+        const worldPos = new THREE.Vector3();
+        if (this.orbitGroup) {
+            this.orbitGroup.getWorldPosition(worldPos);
+        }
+        return worldPos;
     }
 
     getMesh() {
@@ -129,9 +217,19 @@ export class Planet {
 
     setOrbitSpeed(speed) {
         this.orbitSpeed = speed;
+        if (!this.isSlowed) {
+            this.currentOrbitSpeed = speed;
+        }
     }
 
     setRotationSpeed(speed) {
         this.rotationSpeed = speed;
+        if (!this.isSlowed) {
+            this.currentRotationSpeed = speed;
+        }
+    }
+
+    getDescription() {
+        return this.description;
     }
 }

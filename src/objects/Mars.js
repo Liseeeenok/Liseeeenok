@@ -9,6 +9,7 @@ export class Mars extends Planet {
     constructor() {
         const config = {
             name: 'Mars',
+            description: 'The Red Planet. Fourth from the Sun, featuring the tallest mountain in the solar system - Olympus Mons.',
             radius: 42,
             distance: Mars.defaultDistance,
             color: 0xcc6644,

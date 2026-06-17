@@ -7,7 +7,7 @@ export class CameraManager {
 
     init() {
         this.camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 20000);
-        this.camera.position.set(4000, 1600, 4000);
+        this.camera.position.set(3000, 600, 2000);
         return this.camera;
     }
 

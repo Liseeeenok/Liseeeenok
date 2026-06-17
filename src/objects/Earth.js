@@ -9,6 +9,7 @@ export class Earth extends Planet {
     constructor() {
         const config = {
             name: 'Earth',
+            description: 'Our home planet. The third planet from the Sun, known for its liquid water and diverse life forms.',
             radius: 50,
             distance: Earth.defaultDistance,
             color: 0x44aaff,
@@ -20,7 +21,8 @@ export class Earth extends Planet {
             rotationSpeed: 0.005,
             hasAtmosphere: true,
             atmosphereColor: 0x88aaff,
-            atmosphereOpacity: 0.15
+            atmosphereOpacity: 0.15,
+            slowDownFactor: 0.15
         };
 
         super(config);
