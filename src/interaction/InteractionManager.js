@@ -6,6 +6,7 @@ export class InteractionManager {
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
+        this.controls = null;
         this.planets = [];
         this.hoveredPlanet = null;
         this.selectedPlanet = null;
@@ -170,7 +171,7 @@ export class InteractionManager {
             const hitPlanet = this.planets.find(p => p.getMesh() === hitMesh);
 
             if (hitPlanet) {
-                this.selectPlanet(hitPlanet, this.currentControls);
+                this.selectPlanet(hitPlanet);
                 return;
             }
         }
@@ -208,7 +209,7 @@ export class InteractionManager {
         }
     }
 
-    selectPlanet(planet, controls) {
+    selectPlanet(planet) {
         // Если уже выбрана эта планета - ничего не делаем
         if (this.selectedPlanet === planet) return;
 
@@ -230,23 +231,20 @@ export class InteractionManager {
         this.showInfoPanel(planet);
 
         // Анимируем камеру к планете
-        this.animateCameraToPlanet(planet, controls);
+        this.animateCameraToPlanet(planet);
 
         // Скрываем тултип
         this.hideTooltip();
     }
 
-    animateCameraToPlanet(planet, controls) {
+    animateCameraToPlanet(planet) {
         const planetPos = planet.getPosition();
         
         // Сохраняем начальные позиции (текущие)
         this.startCameraPos.copy(this.camera.position);
-        console.log('Start camera position:', this.camera.position);
         
-        // Сохраняем текущий target из controls
-        if (controls) {
-            this.startTarget.copy(controls.target);
-            console.log('Start target:', controls.target);
+        if (this.controls) {
+            this.startTarget.copy(this.controls.target);
         } else {
             this.startTarget.set(0, 0, 0);
         }
@@ -317,7 +315,7 @@ export class InteractionManager {
         this.infoPanel.style.transform = 'translate(-50%, -50%) scale(1)';
     }
 
-    closeInfoPanel(controls) {
+    closeInfoPanel() {
         if (!this.selectedPlanet) return;
 
         // Возвращаем нормальную скорость планете
@@ -330,18 +328,15 @@ export class InteractionManager {
         this.infoPanel.style.display = 'none';
 
         // Возвращаем камеру в исходное положение
-        this.resetCameraPosition(controls);
+        this.resetCameraPosition();
     }
 
-    resetCameraPosition(controls) {
+    resetCameraPosition() {
         // Сохраняем текущую позицию камеры как начальную для анимации
         this.startCameraPos.copy(this.camera.position);
-        console.log('Start camera position:', this.camera.position);
-        
-        // Сохраняем текущий target из controls
-        if (controls) {
-            this.startTarget.copy(controls.target);
-            console.log('Start target:', controls.target);
+
+        if (this.controls) {
+            this.startTarget.copy(this.controls.target);
         } else {
             this.startTarget.set(0, 0, 0);
         }
@@ -403,6 +398,11 @@ export class InteractionManager {
     }
 
     update(controls) {
+        // Сохраняем ссылку на controls если ее нет
+        if (controls && !this.controls) {
+            this.controls = controls;
+        }
+
         // Обновляем анимацию камеры
         if (this.isAnimatingToPlanet) {
             this.animationProgress += 0.02; // Скорость анимации
@@ -417,9 +417,9 @@ export class InteractionManager {
             
             this.camera.position.lerpVectors(this.startCameraPos, this.targetCameraPos, t);
             
-            if (controls) {
-                controls.target.lerpVectors(this.startTarget, this.targetTarget, t);
-                controls.update();
+            if (this.controls) {
+                this.controls.target.lerpVectors(this.startTarget, this.targetTarget, t);
+                this.controls.update();
             }
         }
 

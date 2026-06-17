@@ -77,7 +77,6 @@ class SolarSystemApp {
 
             const controls = this.animationController.getControls();
             if (this.interactionManager) {
-                this.interactionManager.currentControls = controls;
                 this.interactionManager.update(controls);
             }
         });
