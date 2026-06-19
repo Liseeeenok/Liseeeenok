@@ -21,7 +21,10 @@ export class Mars extends Planet {
             rotationSpeed: 0.004,
             hasAtmosphere: true,
             atmosphereColor: 0xcc8866,
-            atmosphereOpacity: 0.08
+            atmosphereOpacity: 0.08,
+            glowColor: 0xff6633,
+            glowIntensity: 0.3,
+            glowRadius: 1.8
         };
 
         super(config);

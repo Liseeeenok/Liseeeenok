@@ -22,7 +22,10 @@ export class Earth extends Planet {
             hasAtmosphere: true,
             atmosphereColor: 0x88aaff,
             atmosphereOpacity: 0.15,
-            slowDownFactor: 0.15
+            slowDownFactor: 0.15,
+            glowColor: 0x88ccff,
+            glowIntensity: 0.4,
+            glowRadius: 2.0
         };
 
         super(config);

@@ -34,6 +34,11 @@ export class Planet {
         this.atmosphereColor = config.atmosphereColor || 0x88aaff;
         this.atmosphereOpacity = config.atmosphereOpacity || 0.2;
 
+        // Параметры свечения
+        this.glowColor = config.glowColor || this.color;
+        this.glowIntensity = config.glowIntensity || 0.3;
+        this.glowRadius = config.glowRadius || 1.8;
+
         // 3D объекты
         this.mesh = null;
         this.atmosphere = null;
@@ -107,15 +112,55 @@ export class Planet {
     }
 
     createGlowEffect() {
-        const glowGeometry = new THREE.SphereGeometry(this.radius * 1.5, 64, 64);
-        const glowMaterial = new THREE.MeshBasicMaterial({
-            color: this.hoverColor,
+        const outerGlowGeometry = new THREE.SphereGeometry(this.radius * 2.0, 64, 64);
+        const outerGlowMaterial = new THREE.MeshBasicMaterial({
+            color: this.glowColor,
             transparent: true,
-            opacity: 0,
+            opacity: 0.08,
             side: THREE.BackSide,
-            blending: THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
         });
-        this.glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+        this.outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
+        this.planetGroup.add(this.outerGlowMesh);
+
+        // Создаем частицы свечения
+        this.createGlowParticles();
+    }
+
+    createGlowParticles() {
+        const particleCount = 50;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(particleCount * 3);
+        const sizes = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            const radius = this.radius * (1.2 + Math.random() * 1.5);
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+
+            positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            positions[i * 3 + 2] = radius * Math.cos(phi);
+
+            sizes[i] = 1 + Math.random() * 3;
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        const material = new THREE.PointsMaterial({
+            color: this.glowColor,
+            size: 2,
+            transparent: true,
+            opacity: 0.3,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+            sizeAttenuation: true
+        });
+
+        this.glowParticles = new THREE.Points(geometry, material);
+        this.planetGroup.add(this.glowParticles);
     }
 
     addAtmosphere() {
@@ -151,6 +196,33 @@ export class Planet {
 
         // Плавное обновление скоростей
         this.updateSpeedTransition();
+    }
+
+    updateGlowAnimation(deltaTime) {
+        if (this.glowMesh) {
+            // Пульсация свечения
+            const pulse = 1 + 0.1 * Math.sin(Date.now() * 0.001 * 0.5);
+            this.glowMesh.scale.set(pulse, pulse, pulse);
+
+            // Плавное изменение прозрачности
+            if (!this.isHovered) {
+                this.glowMesh.material.opacity = 0.1 + 0.05 * Math.sin(Date.now() * 0.001 * 0.3);
+            }
+        }
+
+        if (this.outerGlowMesh) {
+            // Внешнее свечение пульсирует с другой скоростью
+            const pulse = 1 + 0.08 * Math.sin(Date.now() * 0.001 * 0.4 + 1);
+            this.outerGlowMesh.scale.set(pulse, pulse, pulse);
+        }
+
+        if (this.glowParticles) {
+            this.glowParticles.rotation.y += 0.002 * deltaTime;
+            this.glowParticles.rotation.x += 0.001 * deltaTime;
+
+            // Пульсация частиц
+            this.glowParticles.material.opacity = 0.2 + 0.15 * Math.sin(Date.now() * 0.001 * 0.6);
+        }
     }
 
     updateSpeedTransition() {
@@ -231,5 +303,32 @@ export class Planet {
 
     getDescription() {
         return this.description;
+    }
+
+    setGlowColor(color) {
+        this.glowColor = color;
+        if (this.glowMesh) {
+            this.glowMesh.material.color.setHex(color);
+        }
+        if (this.outerGlowMesh) {
+            this.outerGlowMesh.material.color.setHex(color);
+        }
+        if (this.glowParticles) {
+            this.glowParticles.material.color.setHex(color);
+        }
+    }
+
+    // Метод для настройки интенсивности свечения
+    setGlowIntensity(intensity) {
+        this.glowIntensity = intensity;
+        if (this.glowMesh) {
+            this.glowMesh.material.opacity = intensity * 0.5;
+        }
+        if (this.outerGlowMesh) {
+            this.outerGlowMesh.material.opacity = intensity * 0.25;
+        }
+        if (this.glowParticles) {
+            this.glowParticles.material.opacity = intensity * 0.8;
+        }
     }
 }

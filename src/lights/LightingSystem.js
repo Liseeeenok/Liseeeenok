@@ -3,31 +3,24 @@ import * as THREE from 'three';
 export class LightingSystem {
     constructor() {
         this.ambientLight = null;
-        this.sunLight = null;
-        this.earthLight = null;
+        this.hemisphereLight = null;
+        this.directionalLight = null;
     }
 
     createLights(scene) {
-        this.ambientLight = new THREE.AmbientLight(0x222222);
+        // 1. Базовое освещение (очень слабое, чтобы не было полной темноты)
+        this.ambientLight = new THREE.AmbientLight(0x222244, 0.3);
         scene.add(this.ambientLight);
 
-        this.sunLight = new THREE.PointLight(0xffaa66, 1, 0);
-        this.sunLight.position.set(0, 0, 0);
-        scene.add(this.sunLight);
-    }
+        // 2. Полусферический свет для мягкого заполнения
+        this.hemisphereLight = new THREE.HemisphereLight(0x4444ff, 0x442222, 1);
+        scene.add(this.hemisphereLight);
 
-    createEarthLight(scene, earthPosition) {
-        this.earthLight = new THREE.PointLight(0x4488ff, 0.3, 800);
-        if (earthPosition) {
-            this.earthLight.position.set(earthPosition.x, earthPosition.y, earthPosition.z);
-        }
-        scene.add(this.earthLight);
-        return this.earthLight;
-    }
+        // 3. Основной направленный свет от Солнца (имитация солнечного света)
+        this.directionalLight = new THREE.DirectionalLight(0xffaa66, 1.5);
+        this.directionalLight.position.set(0, 0, 0);
+        scene.add(this.directionalLight);
 
-    updateEarthLightPosition(position) {
-        if (this.earthLight && position) {
-            this.earthLight.position.set(position.x, position.y, position.z);
-        }
+        return this.directionalLight;
     }
 }

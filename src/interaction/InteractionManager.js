@@ -172,7 +172,6 @@ export class InteractionManager {
 
             if (hitPlanet) {
                 this.selectPlanet(hitPlanet);
-                return;
             }
         }
     }
@@ -218,6 +217,7 @@ export class InteractionManager {
             this.selectedPlanet.onHoverEnd();
             this.selectedPlanet.isSlowed = false;
             this.selectedPlanet.instantStop = false;
+            this.selectedPlanet.outerGlowMesh.material.opacity = 0.08;
         }
 
         this.selectedPlanet = planet;
@@ -226,6 +226,7 @@ export class InteractionManager {
 
         // Останавливаем орбитальное движение
         planet.instantStop = true;
+        planet.outerGlowMesh.material.opacity = 0;
     
         // Показываем информационную панель
         this.showInfoPanel(planet);
@@ -321,6 +322,7 @@ export class InteractionManager {
         // Возвращаем нормальную скорость планете
         this.selectedPlanet.isSlowed = false;
         this.selectedPlanet.instantStop = false;
+        this.selectedPlanet.outerGlowMesh.material.opacity = 0.08;
         this.selectedPlanet.onHoverEnd();
         this.selectedPlanet = null;
 
