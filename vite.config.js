@@ -9,8 +9,8 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         assetsDir: 'assets',
-        sourcemap: false,
-        minify: true,
+        sourcemap: true,
+        minify: false,
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
@@ -18,9 +18,15 @@ export default defineConfig({
             output: {
                 manualChunks: {
                     three: ['three']
-                }
+                },
             }
+        },
+        commonjsOptions: {
+            include: [/three/, /node_modules/]
         }
     },
-    publicDir: 'public'
+    publicDir: 'public',
+    optimizeDeps: {
+        include: ['three']
+    }
 });

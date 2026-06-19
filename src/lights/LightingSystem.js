@@ -11,14 +11,9 @@ export class LightingSystem {
         this.ambientLight = new THREE.AmbientLight(0x222222);
         scene.add(this.ambientLight);
 
-        this.sunLight = new THREE.PointLight(0xffaa66, 2.5, 5000);
+        this.sunLight = new THREE.PointLight(0xffaa66, 1, 0);
         this.sunLight.position.set(0, 0, 0);
         scene.add(this.sunLight);
-
-        return {
-            sunLight: this.sunLight,
-            ambientLight: this.ambientLight
-        };
     }
 
     createEarthLight(scene, earthPosition) {
