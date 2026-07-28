@@ -11,6 +11,7 @@ export class InteractionManager {
         this.selectedObject = null;
         this.tooltip = null;
         this.raycaster = new THREE.Raycaster();
+        this.visibilityRaycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.clock = new THREE.Clock();
         this.contentCache = new Map();
@@ -562,6 +563,10 @@ export class InteractionManager {
 
     updateObjectLabels() {
         const screenPosition = new THREE.Vector3();
+        const cameraPosition = this.camera.position.clone();
+        const planetMeshes = this.interactiveObjects
+            .map((object) => ({ object, mesh: object.getMesh() }))
+            .filter(({ mesh }) => mesh !== null);
 
         this.objectLabels.forEach(({ object, element }) => {
             const worldPosition = object.getPosition().clone();
@@ -574,6 +579,26 @@ export class InteractionManager {
                 Math.abs(screenPosition.y) <= 1.2;
 
             if (!isVisible) {
+                element.style.opacity = '0';
+                return;
+            }
+
+            const objectCenter = object.getPosition();
+            const direction = objectCenter.clone().sub(cameraPosition).normalize();
+            const objectDistance = cameraPosition.distanceTo(objectCenter);
+            this.visibilityRaycaster.set(cameraPosition, direction);
+
+            const intersections = this.visibilityRaycaster.intersectObjects(
+                planetMeshes.map(({ mesh }) => mesh),
+                false
+            );
+
+            const blockingHit = intersections.find((intersection) =>
+                intersection.object !== object.getMesh() &&
+                intersection.distance < objectDistance - object.radius * 0.25
+            );
+
+            if (blockingHit) {
                 element.style.opacity = '0';
                 return;
             }
