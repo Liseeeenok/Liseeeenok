@@ -82,8 +82,8 @@ canvas {
   right: 20px;
   z-index: 3000;
   display: flex;
-  gap: 8px;
-  padding: 8px;
+  gap: 4px;
+  padding: 4px;
   border-radius: 999px;
   background: rgba(8, 12, 24, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -94,11 +94,11 @@ canvas {
 .language-switcher button {
   border: 0;
   border-radius: 999px;
-  padding: 8px 12px;
+  padding: 4px 7px;
   background: transparent;
   color: rgba(255, 255, 255, 0.82);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.08em;
 }

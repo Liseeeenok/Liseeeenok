@@ -105,20 +105,23 @@ export class InteractionManager {
         this.infoPanel.style.display = 'none';
         this.infoPanel.style.backgroundColor = 'rgba(10, 10, 30, 0.92)';
         this.infoPanel.style.color = 'white';
-        this.infoPanel.style.padding = '24px 30px';
+        this.infoPanel.style.padding = '24px 28px';
         this.infoPanel.style.borderRadius = '16px';
         this.infoPanel.style.border = '1px solid rgba(255, 255, 255, 0.15)';
         this.infoPanel.style.backdropFilter = 'blur(20px)';
         this.infoPanel.style.fontFamily = 'Arial, sans-serif';
-        this.infoPanel.style.maxWidth = '400px';
-        this.infoPanel.style.minWidth = '300px';
-        this.infoPanel.style.maxHeight = '80vh';
+        this.infoPanel.style.width = 'min(58vw, 920px)';
+        this.infoPanel.style.minWidth = '340px';
+        this.infoPanel.style.maxWidth = 'calc(100vw - 360px)';
+        this.infoPanel.style.height = 'calc(100vh - 92px)';
+        this.infoPanel.style.maxHeight = 'none';
         this.infoPanel.style.overflowY = 'auto';
         this.infoPanel.style.boxShadow = '0 8px 40px rgba(0, 0, 0, 0.7)';
         this.infoPanel.style.zIndex = '2000';
-        this.infoPanel.style.top = '50%';
-        this.infoPanel.style.left = '75%';
-        this.infoPanel.style.transform = 'translate(-50%, -50%)';
+        this.infoPanel.style.top = '72px';
+        this.infoPanel.style.left = 'auto';
+        this.infoPanel.style.right = '20px';
+        this.infoPanel.style.transform = 'none';
         this.infoPanel.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
         this.infoPanel.style.borderRadius = '16px';
         document.body.appendChild(this.infoPanel);
@@ -284,13 +287,19 @@ export class InteractionManager {
             this.startTarget.set(0, 0, 0);
         }
 
-        const distance = object.radius * 4 + 100;
+        const forward = new THREE.Vector3().subVectors(objectPos, this.startCameraPos).normalize();
+        const worldUp = new THREE.Vector3(0, 1, 0);
+        const right = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
+        const verticalLift = Math.max(object.radius * 0.12, 10);
+        const distance = Math.max(object.radius * 1.28, object.radius + 20);
+
         this.targetCameraPos.set(
-            objectPos.x + distance * 0.7,
-            objectPos.y + distance * 0.5,
-            objectPos.z + distance * 0.7
+            objectPos.x - forward.x * distance,
+            objectPos.y - forward.y * distance + verticalLift,
+            objectPos.z - forward.z * distance
         );
-        this.targetTarget.copy(objectPos);
+
+        this.targetTarget.copy(objectPos).add(right.multiplyScalar(object.radius * 1.5));
 
         this.isAnimatingToPlanet = true;
         this.animationProgress = 0;
@@ -298,20 +307,22 @@ export class InteractionManager {
 
     async showInfoPanel(object) {
         this.infoPanel.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                <h2 style="margin: 0; color: #88ccff; font-size: 24px;">${object.name}</h2>
-                <button id="closeInfoBtn" style="
-                    background: rgba(255,255,255,0.1);
-                    border: none;
-                    color: white;
-                    font-size: 20px;
-                    cursor: pointer;
-                    padding: 4px 12px;
-                    border-radius: 8px;
-                    transition: background 0.2s;
-                ">✕</button>
+            <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
+                    <h2 style="margin: 0; color: #88ccff; font-size: 24px;">${object.name}</h2>
+                    <button id="closeInfoBtn" style="
+                        background: rgba(255,255,255,0.1);
+                        border: none;
+                        color: white;
+                        font-size: 20px;
+                        cursor: pointer;
+                        padding: 4px 12px;
+                        border-radius: 8px;
+                        transition: background 0.2s;
+                    ">✕</button>
+                </div>
+                <div class="portfolio-content-body" style="flex: 1; overflow-y: auto; padding-right: 6px;">Loading...</div>
             </div>
-            <div class="portfolio-content-body">Loading...</div>
         `;
 
         // Добавляем обработчик для кнопки закрытия
@@ -325,7 +336,7 @@ export class InteractionManager {
 
         this.infoPanel.style.display = 'block';
         this.infoPanel.style.opacity = '1';
-        this.infoPanel.style.transform = 'translate(-50%, -50%) scale(1)';
+        this.infoPanel.style.transform = 'none';
 
         const contentBody = this.infoPanel.querySelector('.portfolio-content-body');
         const requestId = ++this.activeDetailsRequest;
