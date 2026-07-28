@@ -65,10 +65,12 @@ class SolarSystemApp {
 
         // Инициализация InteractionManager
         this.interactionManager = new InteractionManager(scene, camera, renderer);
+
+        this.interactionManager.registerInteractiveObject(this.sun);
         
         // Регистрируем планеты для взаимодействия
         this.planets.forEach(planet => {
-            this.interactionManager.registerPlanet(planet);
+            this.interactionManager.registerInteractiveObject(planet);
         });
 
         // Запуск анимации с кастомным update

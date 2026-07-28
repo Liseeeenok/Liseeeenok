@@ -6,13 +6,20 @@ export class InteractionManager {
         this.camera = camera;
         this.renderer = renderer;
         this.controls = null;
-        this.planets = [];
-        this.hoveredPlanet = null;
-        this.selectedPlanet = null;
+        this.interactiveObjects = [];
+        this.hoveredObject = null;
+        this.selectedObject = null;
         this.tooltip = null;
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.clock = new THREE.Clock();
+        this.contentCache = new Map();
+        this.activeTooltipRequest = 0;
+        this.activeDetailsRequest = 0;
+        this.currentLanguage = this.getInitialLanguage();
+        this.languageSwitcher = null;
+        this.lastPointerClientX = 0;
+        this.lastPointerClientY = 0;
 
         // Параметры анимации камеры
         this.isAnimatingToPlanet = false;
@@ -25,7 +32,51 @@ export class InteractionManager {
 
         this.initTooltip();
         this.initInfoPanel();
+        this.initLanguageSwitcher();
         this.setupEventListeners();
+    }
+
+    getInitialLanguage() {
+        const savedLanguage = window.localStorage.getItem('portfolio-language');
+        return savedLanguage === 'en' ? 'en' : 'ru';
+    }
+
+    initLanguageSwitcher() {
+        this.languageSwitcher = document.createElement('div');
+        this.languageSwitcher.className = 'language-switcher';
+        document.body.appendChild(this.languageSwitcher);
+        this.renderLanguageSwitcher();
+    }
+
+    renderLanguageSwitcher() {
+        if (!this.languageSwitcher) return;
+
+        this.languageSwitcher.innerHTML = `
+            <button type="button" data-lang="ru" class="${this.currentLanguage === 'ru' ? 'is-active' : ''}">RU</button>
+            <button type="button" data-lang="en" class="${this.currentLanguage === 'en' ? 'is-active' : ''}">EN</button>
+        `;
+
+        this.languageSwitcher.querySelectorAll('button').forEach((button) => {
+            button.addEventListener('click', () => {
+                this.setLanguage(button.dataset.lang);
+            });
+        });
+    }
+
+    setLanguage(language) {
+        if (!language || language === this.currentLanguage) return;
+
+        this.currentLanguage = language;
+        window.localStorage.setItem('portfolio-language', language);
+        this.renderLanguageSwitcher();
+
+        if (this.selectedObject) {
+            this.showInfoPanel(this.selectedObject);
+        }
+
+        if (this.hoveredObject && this.tooltip.style.display !== 'none') {
+            this.showTooltip(this.hoveredObject, this.lastPointerClientX, this.lastPointerClientY);
+        }
     }
 
     initTooltip() {
@@ -98,41 +149,43 @@ export class InteractionManager {
         canvas.addEventListener('click', this.onClick.bind(this));
     }
 
-    registerPlanet(planet) {
-        this.planets.push(planet);
+    registerInteractiveObject(object) {
+        this.interactiveObjects.push(object);
     }
 
     onMouseMove(event) {
+        this.lastPointerClientX = event.clientX;
+        this.lastPointerClientY = event.clientY;
+
         const rect = this.renderer.domElement.getBoundingClientRect();
         this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
         this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        // Собираем все меши планет
-        const meshes = this.planets
-            .map(planet => planet.getMesh())
+        const meshes = this.interactiveObjects
+            .map((object) => object.getMesh())
             .filter(mesh => mesh !== null);
 
         const intersects = this.raycaster.intersectObjects(meshes);
 
         if (intersects.length > 0) {
             const hitMesh = intersects[0].object;
-            const hitPlanet = this.planets.find(p => p.getMesh() === hitMesh);
+            const hitObject = this.interactiveObjects.find((object) => object.getMesh() === hitMesh);
 
-            if (hitPlanet) {
-                this.hoverPlanet(hitPlanet, event.clientX, event.clientY);
+            if (hitObject) {
+                this.hoverObject(hitObject, event.clientX, event.clientY);
                 this.renderer.domElement.style.cursor = 'pointer';
                 return;
             }
         }
 
-        this.unhoverPlanet();
+        this.unhoverObject();
         this.renderer.domElement.style.cursor = 'default';
     }
 
     onMouseLeave() {
-        this.unhoverPlanet();
+        this.unhoverObject();
         this.renderer.domElement.style.cursor = 'default';
         this.hideTooltip();
     }
@@ -146,88 +199,83 @@ export class InteractionManager {
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
-        const meshes = this.planets
-            .map(planet => planet.getMesh())
+        const meshes = this.interactiveObjects
+            .map((object) => object.getMesh())
             .filter(mesh => mesh !== null);
 
         const intersects = this.raycaster.intersectObjects(meshes);
 
         if (intersects.length > 0) {
             const hitMesh = intersects[0].object;
-            const hitPlanet = this.planets.find(p => p.getMesh() === hitMesh);
+            const hitObject = this.interactiveObjects.find((object) => object.getMesh() === hitMesh);
 
-            if (hitPlanet) {
-                this.selectPlanet(hitPlanet);
+            if (hitObject) {
+                this.selectObject(hitObject);
             }
         }
     }
 
-    hoverPlanet(planet, x, y) {
-        if (planet.instantStop)
-        {
-            if (this.hoveredPlanet)
-            {
-                this.hoveredPlanet.onHoverEnd();
+    hoverObject(object, x, y) {
+        if (object.instantStop) {
+            if (this.hoveredObject) {
+                this.hoveredObject.onHoverEnd();
             }
             return;
         }
 
-        if (this.hoveredPlanet !== planet) {
-            // Убираем подсветку с предыдущей планеты
-            if (this.hoveredPlanet) {
-                this.hoveredPlanet.onHoverEnd();
+        if (this.hoveredObject !== object) {
+            if (this.hoveredObject) {
+                this.hoveredObject.onHoverEnd();
             }
-            
-            // Подсвечиваем новую планету
-            this.hoveredPlanet = planet;
-            planet.onHoverStart();
+
+            this.hoveredObject = object;
+            object.onHoverStart();
         }
 
-        this.showTooltip(planet, x, y);
+        this.showTooltip(object, x, y);
     }
 
-    unhoverPlanet() {
-        if (this.hoveredPlanet) {
-            this.hoveredPlanet.onHoverEnd();
-            this.hoveredPlanet = null;
+    unhoverObject() {
+        if (this.hoveredObject) {
+            this.hoveredObject.onHoverEnd();
+            this.hoveredObject = null;
             this.hideTooltip();
         }
     }
 
-    selectPlanet(planet) {
-        // Если уже выбрана эта планета - ничего не делаем
-        if (this.selectedPlanet === planet) return;
+    selectObject(object) {
+        if (this.selectedObject === object) return;
 
-        // Снимаем выделение с предыдущей
-        if (this.selectedPlanet) {
-            this.selectedPlanet.onHoverEnd();
-            this.selectedPlanet.isSlowed = false;
-            this.selectedPlanet.instantStop = false;
-            this.selectedPlanet.outerGlowMesh.material.opacity = 0.08;
+        if (this.selectedObject) {
+            this.selectedObject.onHoverEnd();
+            this.selectedObject.isSlowed = false;
+            this.selectedObject.instantStop = false;
+
+            if (this.selectedObject.outerGlowMesh) {
+                this.selectedObject.outerGlowMesh.material.opacity = 0.08;
+            }
         }
 
-        this.selectedPlanet = planet;
-        planet.onHoverStart();
-        planet.isSlowed = true;
+        this.selectedObject = object;
+        object.onHoverStart();
+        object.isSlowed = true;
 
-        // Останавливаем орбитальное движение
-        planet.instantStop = true;
-        planet.outerGlowMesh.material.opacity = 0;
-    
-        // Показываем информационную панель
-        this.showInfoPanel(planet);
+        object.instantStop = true;
 
-        // Анимируем камеру к планете
-        this.animateCameraToPlanet(planet);
+        if (object.outerGlowMesh) {
+            object.outerGlowMesh.material.opacity = 0;
+        }
 
-        // Скрываем тултип
+        this.showInfoPanel(object);
+
+        this.animateCameraToObject(object);
+
         this.hideTooltip();
     }
 
-    animateCameraToPlanet(planet) {
-        const planetPos = planet.getPosition();
+    animateCameraToObject(object) {
+        const objectPos = object.getPosition();
         
-        // Сохраняем начальные позиции (текущие)
         this.startCameraPos.copy(this.camera.position);
         
         if (this.controls) {
@@ -236,27 +284,22 @@ export class InteractionManager {
             this.startTarget.set(0, 0, 0);
         }
 
-        // Вычисляем позицию для камеры (сбоку-сверху от планеты)
-        const distance = planet.radius * 4 + 100;
-        const angle = this.camera.position.angleTo(new THREE.Vector3(0, 0, 1));
-        
-        // Позиционируем камеру напротив планеты
+        const distance = object.radius * 4 + 100;
         this.targetCameraPos.set(
-            planetPos.x + distance * 0.7,
-            planetPos.y + distance * 0.5,
-            planetPos.z + distance * 0.7
+            objectPos.x + distance * 0.7,
+            objectPos.y + distance * 0.5,
+            objectPos.z + distance * 0.7
         );
-        this.targetTarget.copy(planetPos);
+        this.targetTarget.copy(objectPos);
 
         this.isAnimatingToPlanet = true;
         this.animationProgress = 0;
     }
 
-    showInfoPanel(planet) {
-        // Тестовое HTML-содержимое с полным описанием
+    async showInfoPanel(object) {
         this.infoPanel.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
-                <h2 style="margin: 0; color: #88ccff; font-size: 24px;">🪐 ${planet.name}</h2>
+                <h2 style="margin: 0; color: #88ccff; font-size: 24px;">${object.name}</h2>
                 <button id="closeInfoBtn" style="
                     background: rgba(255,255,255,0.1);
                     border: none;
@@ -268,24 +311,7 @@ export class InteractionManager {
                     transition: background 0.2s;
                 ">✕</button>
             </div>
-            <div style="color: #ddd; line-height: 1.8; font-size: 15px;">
-                <p style="margin: 0 0 12px 0;">${planet.getDescription()}</p>
-                <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px;">
-                    <div><span style="color: #888;">Distance:</span> <span style="color: #aaf;">${planet.distance.toFixed(0)} units</span></div>
-                    <div><span style="color: #888;">Radius:</span> <span style="color: #aaf;">${planet.radius.toFixed(0)} units</span></div>
-                    <div><span style="color: #888;">Orbit Speed:</span> <span style="color: #aaf;">${(planet.orbitSpeed * 1000).toFixed(2)}×10⁻³</span></div>
-                    <div><span style="color: #888;">Rotation Speed:</span> <span style="color: #aaf;">${(planet.rotationSpeed * 1000).toFixed(2)}×10⁻³</span></div>
-                    <div><span style="color: #888;">Color:</span> <span style="display: inline-block; width: 20px; height: 20px; border-radius: 50%; background: #${planet.color.toString(16).padStart(6, '0')}; vertical-align: middle;"></span></div>
-                    <div><span style="color: #888;">Atmosphere:</span> <span style="color: #aaf;">${planet.hasAtmosphere ? '✅ Yes' : '❌ No'}</span></div>
-                </div>
-                <hr style="border: 1px solid rgba(255,255,255,0.1); margin: 12px 0;">
-                <div style="font-size: 13px; color: #888; line-height: 1.6;">
-                    <p style="margin: 0;"><strong>Order from Sun:</strong> ${planet.constructor.order || 'N/A'}</p>
-                    <p style="margin: 4px 0 0 0;"><strong>Status:</strong> ${planet.isSlowed ? '🔄 Orbiting paused' : '🔄 Orbiting'}</p>
-                    <p style="margin: 4px 0 0 0; font-size: 11px; color: #666;">Click outside or press ESC to close</p>
-                </div>
-            </div>
+            <div class="portfolio-content-body">Loading...</div>
         `;
 
         // Добавляем обработчик для кнопки закрытия
@@ -300,22 +326,32 @@ export class InteractionManager {
         this.infoPanel.style.display = 'block';
         this.infoPanel.style.opacity = '1';
         this.infoPanel.style.transform = 'translate(-50%, -50%) scale(1)';
+
+        const contentBody = this.infoPanel.querySelector('.portfolio-content-body');
+        const requestId = ++this.activeDetailsRequest;
+        const detailsMarkup = await this.loadContentMarkup(object, 'details');
+
+        if (requestId === this.activeDetailsRequest && contentBody) {
+            contentBody.innerHTML = detailsMarkup;
+        }
     }
 
     closeInfoPanel() {
-        if (!this.selectedPlanet) return;
+        if (!this.selectedObject) return;
 
-        // Возвращаем нормальную скорость планете
-        this.selectedPlanet.isSlowed = false;
-        this.selectedPlanet.instantStop = false;
-        this.selectedPlanet.outerGlowMesh.material.opacity = 0.08;
-        this.selectedPlanet.onHoverEnd();
-        this.selectedPlanet = null;
+        this.selectedObject.isSlowed = false;
+        this.selectedObject.instantStop = false;
 
-        // Скрываем панель
+        if (this.selectedObject.outerGlowMesh) {
+            this.selectedObject.outerGlowMesh.material.opacity = 0.08;
+        }
+
+        this.selectedObject.onHoverEnd();
+        this.selectedObject = null;
+        this.activeDetailsRequest += 1;
+
         this.infoPanel.style.display = 'none';
 
-        // Возвращаем камеру в исходное положение
         this.resetCameraPosition();
     }
 
@@ -337,8 +373,7 @@ export class InteractionManager {
         this.animationProgress = 0;
     }
 
-    showTooltip(planet, x, y) {
-        // Позиционируем тултип рядом с курсором
+    async showTooltip(object, x, y) {
         const offsetX = 20;
         const offsetY = -20;
         
@@ -360,23 +395,60 @@ export class InteractionManager {
         this.tooltip.style.display = 'block';
         this.tooltip.style.opacity = '1';
 
-        // Используем HTML для форматирования
-        this.tooltip.innerHTML = `
-            <div style="font-weight: bold; font-size: 16px; margin-bottom: 6px; color: #88ccff;">
-                🪐 ${planet.name}
-            </div>
-            <div style="font-size: 13px; line-height: 1.5; color: #ddd;">
-                ${planet.getDescription()}
-            </div>
-            <div style="margin-top: 6px; font-size: 11px; color: #888;">
-                Distance: ${planet.distance.toFixed(0)} units
-            </div>
-        `;
+        this.tooltip.innerHTML = '<div class="portfolio-content-body">Loading...</div>';
+
+        const requestId = ++this.activeTooltipRequest;
+        const labelMarkup = await this.loadContentMarkup(object, 'label');
+
+        if (requestId === this.activeTooltipRequest && this.hoveredObject === object) {
+            this.tooltip.innerHTML = labelMarkup;
+        }
     }
 
     hideTooltip() {
         this.tooltip.style.display = 'none';
         this.tooltip.style.opacity = '0';
+        this.activeTooltipRequest += 1;
+    }
+
+    async loadContentMarkup(object, type) {
+        const cacheKey = `${this.currentLanguage}:${object.getContentKey()}:${type}`;
+
+        if (this.contentCache.has(cacheKey)) {
+            return this.contentCache.get(cacheKey);
+        }
+
+        const paths = [
+            `/content/${this.currentLanguage}/${object.getContentKey()}/${type}.html`,
+            `/public/content/${this.currentLanguage}/${object.getContentKey()}/${type}.html`,
+            `/content/${object.getContentKey()}/${type}.html`,
+            `/public/content/${object.getContentKey()}/${type}.html`
+        ];
+
+        let markup = type === 'label'
+            ? object.getLabelFallbackMarkup()
+            : object.getDetailsFallbackMarkup();
+
+        for (const path of paths) {
+            try {
+                const response = await fetch(path);
+
+                if (!response.ok) {
+                    continue;
+                }
+
+                markup = await response.text();
+
+                if (markup.trim()) {
+                    break;
+                }
+            } catch (error) {
+                console.warn(`Failed to load content from ${path}`, error);
+            }
+        }
+
+        this.contentCache.set(cacheKey, markup);
+        return markup;
     }
 
     onResize() {}
@@ -418,6 +490,9 @@ export class InteractionManager {
         }
         if (this.infoPanel) {
             document.body.removeChild(this.infoPanel);
+        }
+        if (this.languageSwitcher) {
+            document.body.removeChild(this.languageSwitcher);
         }
     }
 }

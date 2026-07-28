@@ -9,6 +9,7 @@ export class Planet {
         // Конфигурация планеты
         this.name = config.name || 'Planet';
         this.description = config.description || 'A mysterious planet';
+        this.contentKey = config.contentKey || this.name.toLowerCase();
         this.radius = config.radius || 50;
         this.distance = config.distance || this.constructor.defaultDistance;
         this.color = config.color || 0x44aaff;
@@ -315,6 +316,29 @@ export class Planet {
 
     getDescription() {
         return this.description;
+    }
+
+    getContentKey() {
+        return this.contentKey;
+    }
+
+    getLabelFallbackMarkup() {
+        return `
+            <div class="portfolio-label">
+                <h3>${this.name}</h3>
+                <p>${this.description}</p>
+            </div>
+        `;
+    }
+
+    getDetailsFallbackMarkup() {
+        return `
+            <section class="portfolio-details">
+                <h2>${this.name}</h2>
+                <p>${this.description}</p>
+                <p>Update <code>public/content/${this.contentKey}/details.html</code> to replace this placeholder.</p>
+            </section>
+        `;
     }
 
     setGlowColor(color) {

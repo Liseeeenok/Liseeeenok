@@ -6,6 +6,15 @@ export class Sun {
         this.sun = null;
         this.corona = null;
         this.glow = null;
+        this.name = 'Sun';
+        this.description = 'This is the main portfolio hub. Add a short introduction for hover and a longer about section for click.';
+        this.contentKey = 'sun';
+        this.radius = 430;
+        this.originalEmissiveIntensity = 1.2;
+        this.hoverEmissiveIntensity = 1.8;
+        this.isHovered = false;
+        this.isSlowed = false;
+        this.instantStop = false;
     }
 
     create() {
@@ -52,5 +61,74 @@ export class Sun {
 
     getSunMesh() {
         return this.sun;
+    }
+
+    getMesh() {
+        return this.sun;
+    }
+
+    getPosition() {
+        const worldPos = new THREE.Vector3();
+        this.group.getWorldPosition(worldPos);
+        return worldPos;
+    }
+
+    onHoverStart() {
+        this.isHovered = true;
+
+        if (this.sun) {
+            this.sun.material.emissiveIntensity = this.hoverEmissiveIntensity;
+        }
+
+        if (this.corona) {
+            this.corona.material.opacity = 0.25;
+        }
+
+        if (this.glow) {
+            this.glow.material.opacity = 0.16;
+        }
+    }
+
+    onHoverEnd() {
+        this.isHovered = false;
+
+        if (this.sun) {
+            this.sun.material.emissiveIntensity = this.originalEmissiveIntensity;
+        }
+
+        if (this.corona) {
+            this.corona.material.opacity = 0.15;
+        }
+
+        if (this.glow) {
+            this.glow.material.opacity = 0.08;
+        }
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    getContentKey() {
+        return this.contentKey;
+    }
+
+    getLabelFallbackMarkup() {
+        return `
+            <div class="portfolio-label">
+                <h3>${this.name}</h3>
+                <p>${this.description}</p>
+            </div>
+        `;
+    }
+
+    getDetailsFallbackMarkup() {
+        return `
+            <section class="portfolio-details">
+                <h2>${this.name}</h2>
+                <p>${this.description}</p>
+                <p>Update <code>public/content/${this.contentKey}/details.html</code> to replace this placeholder.</p>
+            </section>
+        `;
     }
 }
