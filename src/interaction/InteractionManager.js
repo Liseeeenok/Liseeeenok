@@ -156,6 +156,18 @@ export class InteractionManager {
         this.interactiveObjects.push(object);
     }
 
+    findInteractiveObjectByContentKey(contentKey) {
+        return this.interactiveObjects.find((object) => object.getContentKey() === contentKey);
+    }
+
+    goToAboutMe() {
+        const aboutMeObject = this.findInteractiveObjectByContentKey('about-me');
+
+        if (aboutMeObject) {
+            this.selectObject(aboutMeObject);
+        }
+    }
+
     onMouseMove(event) {
         this.lastPointerClientX = event.clientX;
         this.lastPointerClientY = event.clientY;
@@ -249,6 +261,11 @@ export class InteractionManager {
     selectObject(object) {
         if (this.selectedObject === object) return;
 
+        if (this.hoveredObject) {
+            this.hoveredObject.onHoverEnd();
+            this.hoveredObject = null;
+        }
+
         if (this.selectedObject) {
             this.selectedObject.onHoverEnd();
             this.selectedObject.isSlowed = false;
@@ -260,7 +277,6 @@ export class InteractionManager {
         }
 
         this.selectedObject = object;
-        object.onHoverStart();
         object.isSlowed = true;
 
         object.instantStop = true;
@@ -307,9 +323,18 @@ export class InteractionManager {
 
     async showInfoPanel(object) {
         this.infoPanel.innerHTML = `
-            <div style="display: flex; flex-direction: column; height: 100%;">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 16px;">
-                    <h2 style="margin: 0; color: #88ccff; font-size: 24px;">${object.name}</h2>
+            <div style="position: relative; display: flex; flex-direction: column; height: 100%;">
+                <div style="position: absolute; top: 0; right: 0; display: flex; gap: 8px; z-index: 2;">
+                    <button id="goToAboutBtn" style="
+                        background: rgba(136,204,255,0.12);
+                        border: 1px solid rgba(136,204,255,0.25);
+                        color: white;
+                        font-size: 12px;
+                        cursor: pointer;
+                        padding: 7px 10px;
+                        border-radius: 999px;
+                        transition: background 0.2s;
+                    ">AboutMe</button>
                     <button id="closeInfoBtn" style="
                         background: rgba(255,255,255,0.1);
                         border: none;
@@ -321,11 +346,18 @@ export class InteractionManager {
                         transition: background 0.2s;
                     ">✕</button>
                 </div>
-                <div class="portfolio-content-body" style="flex: 1; overflow-y: auto; padding-right: 6px;">Loading...</div>
+                <div class="portfolio-content-body" style="flex: 1; overflow-y: auto; padding-top: 8px; padding-right: 6px;">Loading...</div>
             </div>
         `;
 
-        // Добавляем обработчик для кнопки закрытия
+        const aboutButton = this.infoPanel.querySelector('#goToAboutBtn');
+        if (aboutButton) {
+            aboutButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.goToAboutMe();
+            });
+        }
+
         const closeBtn = this.infoPanel.querySelector('#closeInfoBtn');
         if (closeBtn) {
             closeBtn.addEventListener('click', (e) => {
@@ -344,7 +376,24 @@ export class InteractionManager {
 
         if (requestId === this.activeDetailsRequest && contentBody) {
             contentBody.innerHTML = detailsMarkup;
+            this.bindContentActions(contentBody);
         }
+    }
+
+    bindContentActions(container) {
+        container.querySelectorAll('[data-project-target]').forEach((link) => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const targetKey = link.dataset.projectTarget;
+                const targetObject = this.findInteractiveObjectByContentKey(targetKey);
+
+                if (targetObject) {
+                    this.selectObject(targetObject);
+                }
+            });
+        });
     }
 
     closeInfoPanel() {

@@ -1,0 +1,193 @@
+export const projectPlanets = [
+    {
+        name: 'RIS',
+        contentKey: 'ris',
+        radius: 80,
+        distance: 521,
+        color: 0x5e7fa3,
+        emissive: 0x18334d,
+        emissiveIntensity: 0.1,
+        glowColor: 0x8faecc,
+        surfaceType: 'gas',
+        bandColors: ['#99b5cf', '#6e8eae', '#4d6f90', '#a8bfd5']
+    },
+    {
+        name: 'Datable',
+        contentKey: 'datable',
+        radius: 75,
+        distance: 721,
+        color: 0xb8a58d,
+        emissive: 0x4f4133,
+        emissiveIntensity: 0.09,
+        glowColor: 0xd7c9b3,
+        surfaceType: 'gas',
+        bandColors: ['#d7c7af', '#bba78c', '#98836f', '#e7dcc9']
+    },
+    {
+        name: 'КИПУ - Геймификация',
+        contentKey: 'kipu-gamification',
+        radius: 70,
+        distance: 908,
+        color: 0xc28f63,
+        emissive: 0x5b3720,
+        emissiveIntensity: 0.09,
+        glowColor: 0xe1b48c,
+        surfaceType: 'gas',
+        bandColors: ['#dfc3a1', '#c89e72', '#aa7e56', '#efe0cb']
+    },
+    {
+        name: 'История изменений CRM',
+        contentKey: 'crm-change-history',
+        radius: 66,
+        distance: 1081,
+        color: 0x8db5c0,
+        emissive: 0x294652,
+        emissiveIntensity: 0.09,
+        glowColor: 0xb9d8df,
+        surfaceType: 'gas',
+        bandColors: ['#bdd4d9', '#98b8bf', '#769da6', '#dbe9eb']
+    },
+    {
+        name: 'Миграция порталов Битрикс24',
+        contentKey: 'bitrix24-portal-migration',
+        radius: 59,
+        distance: 1241,
+        color: 0xa68b63,
+        emissive: 0x4f3e26,
+        emissiveIntensity: 0.08,
+        glowColor: 0xc7b18a,
+        surfaceType: 'rocky'
+    },
+    {
+        name: 'IRTRAN',
+        contentKey: 'irtran',
+        radius: 54,
+        distance: 1392,
+        color: 0x957163,
+        emissive: 0x4a2f27,
+        emissiveIntensity: 0.08,
+        glowColor: 0xbc9b8d,
+        surfaceType: 'rocky'
+    },
+    {
+        name: 'SKOS',
+        contentKey: 'skos',
+        radius: 50,
+        distance: 1535,
+        color: 0x7d7569,
+        emissive: 0x3f392f,
+        emissiveIntensity: 0.08,
+        glowColor: 0xa49b8d,
+        surfaceType: 'rocky'
+    },
+    {
+        name: 'Автоматическая смена ответственных в привязанных сущностях',
+        contentKey: 'auto-linked-assignee-switch',
+        radius: 46,
+        distance: 1668,
+        color: 0x8b6f5a,
+        emissive: 0x473628,
+        emissiveIntensity: 0.08,
+        glowColor: 0xb89a83,
+        surfaceType: 'rocky'
+    },
+    {
+        name: 'Бот для СОД',
+        contentKey: 'sod-bot',
+        radius: 43,
+        distance: 1792,
+        color: 0x9c7c68,
+        emissive: 0x4f3a2f,
+        emissiveIntensity: 0.075,
+        glowColor: 0xc6a38c,
+        surfaceType: 'rocky'
+    },
+    {
+        name: 'Компании, контакты, лиды на карте',
+        contentKey: 'companies-contacts-leads-map',
+        radius: 40,
+        distance: 1908,
+        color: 0x7f715f,
+        emissive: 0x41372b,
+        emissiveIntensity: 0.075,
+        glowColor: 0xa89986,
+        surfaceType: 'rocky'
+    },
+    {
+        name: 'Личный кабинет Нотификат',
+        contentKey: 'notificat-personal-cabinet',
+        radius: 37,
+        distance: 2019,
+        color: 0xbfd1d7,
+        emissive: 0x475d67,
+        emissiveIntensity: 0.07,
+        glowColor: 0xe0ecef,
+        surfaceType: 'ice'
+    },
+    {
+        name: 'Контур.Закупки - Интеграция',
+        contentKey: 'kontur-zakupki-integration',
+        radius: 35,
+        distance: 2123,
+        color: 0xaec1cb,
+        emissive: 0x43515c,
+        emissiveIntensity: 0.07,
+        glowColor: 0xdbe7ec,
+        surfaceType: 'ice'
+    },
+    {
+        name: 'Занятость залов',
+        contentKey: 'hall-occupancy',
+        radius: 33,
+        distance: 2223,
+        color: 0xc8d6dd,
+        emissive: 0x52616a,
+        emissiveIntensity: 0.07,
+        glowColor: 0xe8eff2,
+        surfaceType: 'ice'
+    },
+    {
+        name: 'РЖД Поездка',
+        contentKey: 'rzd-trip',
+        radius: 31,
+        distance: 2321,
+        color: 0xb5c6cf,
+        emissive: 0x495963,
+        emissiveIntensity: 0.07,
+        glowColor: 0xdbe7ec,
+        surfaceType: 'ice'
+    },
+    {
+        name: 'Подписание документов ЭЦП',
+        contentKey: 'document-signing-eds',
+        radius: 29,
+        distance: 2415,
+        color: 0x4f5660,
+        emissive: 0x232931,
+        emissiveIntensity: 0.065,
+        glowColor: 0x7a828c,
+        surfaceType: 'dark'
+    },
+    {
+        name: 'Ставки по ипотеке',
+        contentKey: 'mortgage-rates',
+        radius: 27,
+        distance: 2503,
+        color: 0x5b5d52,
+        emissive: 0x2a2d24,
+        emissiveIntensity: 0.06,
+        glowColor: 0x8d9081,
+        surfaceType: 'dark'
+    },
+    {
+        name: 'Расписание политеха',
+        contentKey: 'polytech-schedule',
+        radius: 25,
+        distance: 2588,
+        color: 0x626a73,
+        emissive: 0x2b333b,
+        emissiveIntensity: 0.06,
+        glowColor: 0x9099a1,
+        surfaceType: 'dark'
+    }
+];

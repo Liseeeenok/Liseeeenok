@@ -3,14 +3,13 @@ import { SceneManager } from './core/SceneManager.js';
 import { CameraManager } from './core/CameraManager.js';
 import { RendererManager } from './core/RendererManager.js';
 import { Sun } from './objects/Sun.js';
+import { ProjectPlanet } from './objects/ProjectPlanet.js';
 import { StarField } from './objects/StarField.js';
 import { ParticleSystem } from './effects/ParticleSystem.js';
 import { LightingSystem } from './lights/LightingSystem.js';
 import { AnimationController } from './animations/AnimationController.js';
 import { InteractionManager } from './interaction/InteractionManager.js';
-
-import { Earth } from './objects/Earth.js';
-import { Mars } from './objects/Mars.js';
+import { projectPlanets } from './data/projectPlanets.js';
 
 class SolarSystemApp {
     constructor() {
@@ -27,13 +26,7 @@ class SolarSystemApp {
         this.mainGroup = new THREE.Object3D();
         this.planets = [];
 
-        this.planetClasses = [
-            Earth,
-            Mars,
-            // Venus,    // Раскомментировать когда добавим
-            // Jupiter,  // Раскомментировать когда добавим
-            // Saturn    // Раскомментировать когда добавим
-        ];
+        this.planetConfigs = projectPlanets;
     }
 
     async init() {
@@ -89,27 +82,24 @@ class SolarSystemApp {
 
     async createAllPlanets() {
         // Автоматическое создание всех зарегистрированных планет
-        const planetPromises = this.planetClasses.map(async (PlanetClass, index) => {
-            const planet = new PlanetClass();
-
-            // Автоматическая настройка орбитальных параметров
-            // Можно добавить расстояние или другие параметры через статические методы
-            if (PlanetClass.defaultDistance) {
-                planet.distance = PlanetClass.defaultDistance;
-            }
+        const planetPromises = this.planetConfigs.map(async (planetConfig) => {
+            const motionConfig = this.getPlanetMotionConfig(planetConfig);
+            const visualConfig = this.getPlanetVisualConfig(planetConfig);
+            const planet = new ProjectPlanet({
+                description: `${planetConfig.name} project`,
+                orbitSpeed: motionConfig.orbitSpeed,
+                rotationSpeed: motionConfig.rotationSpeed,
+                hasAtmosphere: false,
+                atmosphereOpacity: 0,
+                slowDownFactor: 0.15,
+                glowIntensity: visualConfig.glowIntensity,
+                glowRadius: planetConfig.surfaceType === 'gas' ? 1.125 : 1.02,
+                ...planetConfig
+            });
 
             // Создание планеты
             const planetGroup = planet.create();
             this.mainGroup.add(planetGroup);
-
-            // Добавление специфических эффектов
-            if (planet.addClouds && typeof planet.addClouds === 'function') {
-                planet.addClouds();
-            }
-
-            if (planet.createDustStorm && typeof planet.createDustStorm === 'function') {
-                planet.createDustStorm();
-            }
 
             this.planets.push(planet);
 
@@ -121,6 +111,58 @@ class SolarSystemApp {
 
         // Сортировка планет по расстоянию от Солнца (для порядка)
         this.planets.sort((a, b) => a.distance - b.distance);
+    }
+
+    getPlanetMotionConfig(planetConfig) {
+        if (planetConfig.surfaceType === 'gas') {
+            return {
+                orbitSpeed: 0.00055,
+                rotationSpeed: 0.00125
+            };
+        }
+
+        if (planetConfig.surfaceType === 'ice') {
+            return {
+                orbitSpeed: 0.00095,
+                rotationSpeed: 0.0031
+            };
+        }
+
+        if (planetConfig.surfaceType === 'dark') {
+            return {
+                orbitSpeed: 0.0011,
+                rotationSpeed: 0.0036
+            };
+        }
+
+        return {
+            orbitSpeed: 0.00078,
+            rotationSpeed: 0.0022
+        };
+    }
+
+    getPlanetVisualConfig(planetConfig) {
+        if (planetConfig.surfaceType === 'gas') {
+            return {
+                glowIntensity: 0.58
+            };
+        }
+
+        if (planetConfig.surfaceType === 'rocky') {
+            return {
+                glowIntensity: 0.28
+            };
+        }
+
+        if (planetConfig.surfaceType === 'ice') {
+            return {
+                glowIntensity: 0.18
+            };
+        }
+
+        return {
+            glowIntensity: 0.1
+        };
     }
 
     update() {

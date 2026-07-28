@@ -6,12 +6,12 @@ export class Sun {
         this.sun = null;
         this.corona = null;
         this.glow = null;
-        this.name = 'Sun';
+        this.name = 'AboutMe';
         this.description = 'This is the main portfolio hub. Add a short introduction for hover and a longer about section for click.';
-        this.contentKey = 'sun';
+        this.contentKey = 'about-me';
         this.radius = 430;
-        this.originalEmissiveIntensity = 1.2;
-        this.hoverEmissiveIntensity = 1.8;
+        this.originalEmissiveIntensity = 1.45;
+        this.hoverEmissiveIntensity = 2.1;
         this.isHovered = false;
         this.isSlowed = false;
         this.instantStop = false;
@@ -23,7 +23,7 @@ export class Sun {
         const sun_mat = new THREE.MeshStandardMaterial({
             color: 0xff6600,
             emissive: 0xff4400,
-            emissiveIntensity: 1.2,
+            emissiveIntensity: this.originalEmissiveIntensity,
             metalness: 0.95,
             roughness: 0.2
         });
@@ -35,7 +35,7 @@ export class Sun {
         const coronaMaterial = new THREE.MeshBasicMaterial({
             color: 0xff8844,
             transparent: true,
-            opacity: 0.15,
+            opacity: 0.22,
             side: THREE.BackSide
         });
         this.corona = new THREE.Mesh(coronaGeometry, coronaMaterial);
@@ -46,7 +46,7 @@ export class Sun {
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: 0xffaa66,
             transparent: true,
-            opacity: 0.08,
+            opacity: 0.14,
             side: THREE.BackSide
         });
         this.glow = new THREE.Mesh(glowGeometry, glowMaterial);
@@ -81,11 +81,11 @@ export class Sun {
         }
 
         if (this.corona) {
-            this.corona.material.opacity = 0.25;
+            this.corona.material.opacity = 0.34;
         }
 
         if (this.glow) {
-            this.glow.material.opacity = 0.16;
+            this.glow.material.opacity = 0.24;
         }
     }
 
@@ -97,11 +97,11 @@ export class Sun {
         }
 
         if (this.corona) {
-            this.corona.material.opacity = 0.15;
+            this.corona.material.opacity = 0.22;
         }
 
         if (this.glow) {
-            this.glow.material.opacity = 0.08;
+            this.glow.material.opacity = 0.14;
         }
     }
 

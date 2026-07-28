@@ -128,7 +128,7 @@ export class Planet {
         const outerGlowMaterial = new THREE.MeshBasicMaterial({
             color: this.glowColor,
             transparent: true,
-            opacity: 0.08,
+            opacity: this.glowIntensity * 0.2,
             side: THREE.BackSide,
             blending: THREE.AdditiveBlending,
             depthWrite: false
@@ -146,7 +146,7 @@ export class Planet {
         const sizes = new Float32Array(particleCount);
 
         for (let i = 0; i < particleCount; i++) {
-            const radius = this.radius * (1.2 + Math.random() * 1.5);
+            const radius = this.radius * (1.05 + Math.random() * 0.75);
             const theta = Math.random() * Math.PI * 2;
             const phi = Math.acos(2 * Math.random() - 1);
 
@@ -164,7 +164,7 @@ export class Planet {
             color: this.glowColor,
             size: 2,
             transparent: true,
-            opacity: 0.3,
+            opacity: this.glowIntensity * 0.6,
             blending: THREE.AdditiveBlending,
             depthWrite: false,
             sizeAttenuation: true
@@ -219,7 +219,7 @@ export class Planet {
 
             // Плавное изменение прозрачности
             if (!this.isHovered) {
-                this.glowMesh.material.opacity = 0.1 + 0.05 * Math.sin(Date.now() * 0.001 * 0.3);
+                this.glowMesh.material.opacity = this.glowIntensity * (0.24 + 0.12 * Math.sin(Date.now() * 0.001 * 0.3));
             }
         }
 
@@ -227,6 +227,7 @@ export class Planet {
             // Внешнее свечение пульсирует с другой скоростью
             const pulse = 1 + 0.08 * Math.sin(Date.now() * 0.001 * 0.4 + 1);
             this.outerGlowMesh.scale.set(pulse, pulse, pulse);
+            this.outerGlowMesh.material.opacity = this.glowIntensity * (0.16 + 0.06 * Math.sin(Date.now() * 0.001 * 0.25));
         }
 
         if (this.glowParticles) {
@@ -234,7 +235,7 @@ export class Planet {
             this.glowParticles.rotation.x += 0.001 * deltaTime;
 
             // Пульсация частиц
-            this.glowParticles.material.opacity = 0.2 + 0.15 * Math.sin(Date.now() * 0.001 * 0.6);
+            this.glowParticles.material.opacity = this.glowIntensity * (0.42 + 0.2 * Math.sin(Date.now() * 0.001 * 0.6));
         }
     }
 
@@ -264,7 +265,7 @@ export class Planet {
             this.material.emissiveIntensity = this.hoverEmissiveIntensity;
         }
         if (this.glowMesh) {
-            this.glowMesh.material.opacity = 0.3;
+            this.glowMesh.material.opacity = Math.max(this.glowIntensity * 0.8, 0.12);
         }
     }
 
@@ -276,7 +277,7 @@ export class Planet {
             this.material.emissiveIntensity = this.originalEmissiveIntensity;
         }
         if (this.glowMesh) {
-            this.glowMesh.material.opacity = 0;
+            this.glowMesh.material.opacity = this.glowIntensity * 0.12;
         }
     }
 
