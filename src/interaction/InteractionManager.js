@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
 export class InteractionManager {
     constructor(scene, camera, renderer) {
@@ -10,7 +9,6 @@ export class InteractionManager {
         this.planets = [];
         this.hoveredPlanet = null;
         this.selectedPlanet = null;
-        this.labelRenderer = null;
         this.tooltip = null;
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
@@ -25,20 +23,9 @@ export class InteractionManager {
         this.startTarget = new THREE.Vector3();
         this.targetTarget = new THREE.Vector3();
 
-        this.initLabelRenderer();
         this.initTooltip();
         this.initInfoPanel();
         this.setupEventListeners();
-    }
-
-    initLabelRenderer() {
-        this.labelRenderer = new CSS2DRenderer();
-        this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        this.labelRenderer.domElement.style.position = 'absolute';
-        this.labelRenderer.domElement.style.top = '0px';
-        this.labelRenderer.domElement.style.left = '0px';
-        this.labelRenderer.domElement.style.pointerEvents = 'none';
-        document.body.appendChild(this.labelRenderer.domElement);
     }
 
     initTooltip() {
@@ -109,7 +96,6 @@ export class InteractionManager {
         canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
         canvas.addEventListener('mouseleave', this.onMouseLeave.bind(this));
         canvas.addEventListener('click', this.onClick.bind(this));
-        window.addEventListener('resize', this.onResize.bind(this));
     }
 
     registerPlanet(planet) {
@@ -393,11 +379,7 @@ export class InteractionManager {
         this.tooltip.style.opacity = '0';
     }
 
-    onResize() {
-        if (this.labelRenderer) {
-            this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-        }
-    }
+    onResize() {}
 
     update(controls) {
         // Сохраняем ссылку на controls если ее нет
@@ -424,11 +406,6 @@ export class InteractionManager {
                 this.controls.update();
             }
         }
-
-        // Обновляем CSS2D рендерер
-        if (this.labelRenderer) {
-            this.labelRenderer.render(this.scene, this.camera);
-        }
     }
 
     easeInOutCubic(t) {
@@ -436,10 +413,6 @@ export class InteractionManager {
     }
 
     dispose() {
-        if (this.labelRenderer) {
-            this.labelRenderer.dispose();
-            document.body.removeChild(this.labelRenderer.domElement);
-        }
         if (this.tooltip) {
             document.body.removeChild(this.tooltip);
         }

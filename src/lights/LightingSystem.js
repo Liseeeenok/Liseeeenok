@@ -18,8 +18,10 @@ export class LightingSystem {
 
         // 3. Основной направленный свет от Солнца (имитация солнечного света)
         this.directionalLight = new THREE.DirectionalLight(0xffaa66, 1.5);
-        this.directionalLight.position.set(0, 0, 0);
+        this.directionalLight.position.set(0.5, 1, 0.3);
+        this.directionalLight.target.position.set(0, 0, 0);
         scene.add(this.directionalLight);
+        scene.add(this.directionalLight.target);
 
         return this.directionalLight;
     }

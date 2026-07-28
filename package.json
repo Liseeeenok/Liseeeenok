@@ -10,12 +10,16 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "three": "^0.144.0"
+    "three": "^0.160.1"
   },
   "devDependencies": {
     "vite": "^5.0.0"
   },
-  "keywords": ["three-js", "3d", "webgl"],
+  "keywords": [
+    "three-js",
+    "3d",
+    "webgl"
+  ],
   "author": "",
   "license": "MIT"
 }

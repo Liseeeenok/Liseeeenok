@@ -7,6 +7,7 @@ export class RendererManager {
 
     init() {
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(this.renderer.domElement);
         return this.renderer;
@@ -24,6 +25,7 @@ export class RendererManager {
 
     onWindowResize() {
         if (this.renderer) {
+            this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         }
     }

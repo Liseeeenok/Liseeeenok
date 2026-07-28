@@ -112,7 +112,18 @@ export class Planet {
     }
 
     createGlowEffect() {
-        const outerGlowGeometry = new THREE.SphereGeometry(this.radius * 2.0, 64, 64);
+        const glowGeometry = new THREE.SphereGeometry(this.radius * this.glowRadius, 64, 64);
+        const glowMaterial = new THREE.MeshBasicMaterial({
+            color: this.glowColor,
+            transparent: true,
+            opacity: 0,
+            side: THREE.BackSide,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false
+        });
+        this.glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+
+        const outerGlowGeometry = new THREE.SphereGeometry(this.radius * this.glowRadius * 1.15, 64, 64);
         const outerGlowMaterial = new THREE.MeshBasicMaterial({
             color: this.glowColor,
             transparent: true,
@@ -124,7 +135,6 @@ export class Planet {
         this.outerGlowMesh = new THREE.Mesh(outerGlowGeometry, outerGlowMaterial);
         this.planetGroup.add(this.outerGlowMesh);
 
-        // Создаем частицы свечения
         this.createGlowParticles();
     }
 
@@ -196,6 +206,8 @@ export class Planet {
 
         // Плавное обновление скоростей
         this.updateSpeedTransition();
+
+        this.updateGlowAnimation(deltaTime);
     }
 
     updateGlowAnimation(deltaTime) {
