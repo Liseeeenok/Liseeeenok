@@ -20,8 +20,11 @@ export class Sun {
     create() {
         // Солнце
         const sun_geom = new THREE.SphereGeometry(430, 128, 128);
+        const sunTexture = new THREE.TextureLoader().load('/textures/2k_sun.jpg');
+        sunTexture.colorSpace = THREE.SRGBColorSpace;
         const sun_mat = new THREE.MeshStandardMaterial({
-            color: 0xff6600,
+            map: sunTexture,
+            color: 0xffffff,
             emissive: 0xff4400,
             emissiveIntensity: this.originalEmissiveIntensity,
             metalness: 0.95,

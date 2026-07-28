@@ -6,9 +6,29 @@ export class ProjectPlanet extends Planet {
         super(config);
         this.surfaceType = config.surfaceType || 'rocky';
         this.bandColors = config.bandColors || [];
+        this.texturePath = config.texturePath || null;
+
+        if (this.texturePath) {
+            this.originalEmissiveIntensity = 0;
+            this.emissiveIntensity = 0;
+        }
     }
 
     createCustomMaterial() {
+        if (this.texturePath) {
+            const texture = new THREE.TextureLoader().load(this.texturePath);
+            texture.colorSpace = THREE.SRGBColorSpace;
+
+            return new THREE.MeshStandardMaterial({
+                map: texture,
+                color: 0xffffff,
+                metalness: Math.max(0.08, this.metalness * 0.35),
+                roughness: Math.max(0.28, this.roughness - 0.22),
+                emissive: 0xffffff,
+                emissiveIntensity: 0
+            });
+        }
+
         const canvas = document.createElement('canvas');
         canvas.width = 1024;
         canvas.height = 512;
