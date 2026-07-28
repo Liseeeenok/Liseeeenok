@@ -18,6 +18,7 @@ export class InteractionManager {
         this.activeDetailsRequest = 0;
         this.currentLanguage = this.getInitialLanguage();
         this.languageSwitcher = null;
+        this.objectLabels = [];
         this.lastPointerClientX = 0;
         this.lastPointerClientY = 0;
 
@@ -154,6 +155,23 @@ export class InteractionManager {
 
     registerInteractiveObject(object) {
         this.interactiveObjects.push(object);
+
+        if (object.getContentKey() !== 'about-me') {
+            this.createObjectLabel(object);
+        }
+    }
+
+    createObjectLabel(object) {
+        const label = document.createElement('div');
+        label.className = 'planet-label';
+        label.textContent = object.name;
+        label.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            this.selectObject(object);
+        });
+        document.body.appendChild(label);
+        this.objectLabels.push({ object, element: label });
     }
 
     findInteractiveObjectByContentKey(contentKey) {
@@ -426,7 +444,7 @@ export class InteractionManager {
         }
         
         // Целевая позиция - исходное положение камеры
-        this.targetCameraPos.set(3000, 600, 2000);
+        this.targetCameraPos.set(3000, 1200, 2000);
         this.targetTarget.set(0, 0, 0);
 
         this.isAnimatingToPlanet = true;
@@ -538,6 +556,35 @@ export class InteractionManager {
                 this.controls.update();
             }
         }
+
+        this.updateObjectLabels();
+    }
+
+    updateObjectLabels() {
+        const screenPosition = new THREE.Vector3();
+
+        this.objectLabels.forEach(({ object, element }) => {
+            const worldPosition = object.getPosition().clone();
+            worldPosition.y += Math.max(object.radius + 24, 42);
+            screenPosition.copy(worldPosition).project(this.camera);
+
+            const isVisible = screenPosition.z < 1 &&
+                screenPosition.z > -1 &&
+                Math.abs(screenPosition.x) <= 1.2 &&
+                Math.abs(screenPosition.y) <= 1.2;
+
+            if (!isVisible) {
+                element.style.opacity = '0';
+                return;
+            }
+
+            const x = (screenPosition.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-screenPosition.y * 0.5 + 0.5) * window.innerHeight;
+
+            element.style.left = `${x}px`;
+            element.style.top = `${y}px`;
+            element.style.opacity = object === this.selectedObject ? '0.35' : '1';
+        });
     }
 
     easeInOutCubic(t) {
@@ -554,5 +601,8 @@ export class InteractionManager {
         if (this.languageSwitcher) {
             document.body.removeChild(this.languageSwitcher);
         }
+        this.objectLabels.forEach(({ element }) => {
+            document.body.removeChild(element);
+        });
     }
 }

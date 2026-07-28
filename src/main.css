@@ -107,3 +107,25 @@ canvas {
   background: rgba(136, 204, 255, 0.2);
   color: #fff;
 }
+
+.planet-label {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1500;
+  transform: translate(-50%, -50%);
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(8, 14, 28, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
+  backdrop-filter: blur(10px);
+  color: #f4f8ff;
+  font-size: 11px;
+  line-height: 1.25;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}

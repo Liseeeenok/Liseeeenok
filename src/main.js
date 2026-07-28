@@ -144,24 +144,24 @@ class SolarSystemApp {
     getPlanetVisualConfig(planetConfig) {
         if (planetConfig.surfaceType === 'gas') {
             return {
-                glowIntensity: 0.58
+                glowIntensity: 0.72
             };
         }
 
         if (planetConfig.surfaceType === 'rocky') {
             return {
-                glowIntensity: 0.28
+                glowIntensity: 0.42
             };
         }
 
         if (planetConfig.surfaceType === 'ice') {
             return {
-                glowIntensity: 0.18
+                glowIntensity: 0.32
             };
         }
 
         return {
-            glowIntensity: 0.1
+            glowIntensity: 0.22
         };
     }
 

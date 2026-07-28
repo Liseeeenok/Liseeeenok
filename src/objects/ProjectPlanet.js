@@ -53,9 +53,9 @@ export class ProjectPlanet extends Planet {
 
     createSolidPlanetMaterial(ctx, canvas) {
         const palettes = {
-            rocky: ['#5b4c40', '#786251', '#9c8165', '#41362d'],
-            ice: ['#d8e8ef', '#b7d0da', '#9ebcc8', '#edf5f8'],
-            dark: ['#3e434b', '#545b65', '#676f79', '#232830']
+            rocky: ['#74482f', '#9a633f', '#c18754', '#53311d'],
+            ice: ['#d7f6ff', '#a9ddff', '#7fc2ff', '#f2fdff'],
+            dark: ['#3d4763', '#546381', '#6c7fa2', '#252c3f']
         };
 
         const palette = palettes[this.surfaceType] || palettes.rocky;
