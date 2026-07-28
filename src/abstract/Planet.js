@@ -8,6 +8,7 @@ export class Planet {
     constructor(config) {
         // Конфигурация планеты
         this.name = config.name || 'Planet';
+        this.shortLabel = config.shortLabel || this.name;
         this.description = config.description || 'A mysterious planet';
         this.contentKey = config.contentKey || this.name.toLowerCase();
         this.radius = config.radius || 50;
@@ -15,8 +16,8 @@ export class Planet {
         this.color = config.color || 0x44aaff;
         this.emissive = config.emissive || 0x000000;
         this.emissiveIntensity = config.emissiveIntensity || 0;
-        this.metalness = config.metalness || 0.3;
-        this.roughness = config.roughness || 0.5;
+        this.metalness = config.metalness ?? 0;
+        this.roughness = config.roughness ?? 1;
 
         // Орбитальные параметры
         this.orbitSpeed = config.orbitSpeed || this.constructor.defaultOrbitSpeed;
@@ -317,6 +318,10 @@ export class Planet {
 
     getDescription() {
         return this.description;
+    }
+
+    getShortLabel() {
+        return this.shortLabel || this.name;
     }
 
     getContentKey() {

@@ -22,8 +22,8 @@ export class ProjectPlanet extends Planet {
             return new THREE.MeshStandardMaterial({
                 map: texture,
                 color: 0xffffff,
-                metalness: Math.max(0.08, this.metalness * 0.35),
-                roughness: Math.max(0.28, this.roughness - 0.22),
+                metalness: 0,
+                roughness: 1,
                 emissive: 0xffffff,
                 emissiveIntensity: 0
             });
@@ -64,8 +64,8 @@ export class ProjectPlanet extends Planet {
         return new THREE.MeshStandardMaterial({
             map: texture,
             color: this.color,
-            metalness: this.metalness,
-            roughness: this.roughness,
+            metalness: 0,
+            roughness: 1,
             emissive: this.emissive,
             emissiveIntensity: this.emissiveIntensity
         });
@@ -121,8 +121,8 @@ export class ProjectPlanet extends Planet {
         return new THREE.MeshStandardMaterial({
             map: texture,
             color: this.color,
-            metalness: this.metalness,
-            roughness: this.roughness,
+            metalness: 0,
+            roughness: 1,
             emissive: this.emissive,
             emissiveIntensity: this.emissiveIntensity
         });

@@ -25,10 +25,11 @@ export class Sun {
         const sun_mat = new THREE.MeshStandardMaterial({
             map: sunTexture,
             color: 0xffffff,
-            emissive: 0xff4400,
+            emissiveMap: sunTexture,
+            emissive: 0xffffff,
             emissiveIntensity: this.originalEmissiveIntensity,
-            metalness: 0.95,
-            roughness: 0.2
+            metalness: 0,
+            roughness: 1
         });
         this.sun = new THREE.Mesh(sun_geom, sun_mat);
         this.group.add(this.sun);

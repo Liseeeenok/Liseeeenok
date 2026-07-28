@@ -165,7 +165,7 @@ export class InteractionManager {
     createObjectLabel(object) {
         const label = document.createElement('div');
         label.className = 'planet-label';
-        label.textContent = object.name;
+        label.textContent = object.getShortLabel ? object.getShortLabel() : object.name;
         label.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();

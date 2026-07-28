@@ -4,25 +4,23 @@ export class LightingSystem {
     constructor() {
         this.ambientLight = null;
         this.hemisphereLight = null;
-        this.directionalLight = null;
+        this.sunLight = null;
     }
 
     createLights(scene) {
-        // 1. Базовое освещение (очень слабое, чтобы не было полной темноты)
-        this.ambientLight = new THREE.AmbientLight(0x222244, 0.3);
+        // Общая фоновая подсветка, чтобы теневая сторона планет оставалась читаемой
+        this.ambientLight = new THREE.AmbientLight(0x6a7388, 0.55);
         scene.add(this.ambientLight);
 
-        // 2. Полусферический свет для мягкого заполнения
-        this.hemisphereLight = new THREE.HemisphereLight(0x4444ff, 0x442222, 1);
+        // Мягкая полусферическая заливка: небо чуть холоднее, низ теплее
+        this.hemisphereLight = new THREE.HemisphereLight(0x9aa8c4, 0x3a2f28, 0.35);
         scene.add(this.hemisphereLight);
 
-        // 3. Основной направленный свет от Солнца (имитация солнечного света)
-        this.directionalLight = new THREE.DirectionalLight(0xffaa66, 1.5);
-        this.directionalLight.position.set(0.5, 1, 0.3);
-        this.directionalLight.target.position.set(0, 0, 0);
-        scene.add(this.directionalLight);
-        scene.add(this.directionalLight.target);
+        // Основной свет от Солнца
+        this.sunLight = new THREE.PointLight(0xffaa66, 17.2, 0, 0.4);
+        this.sunLight.position.set(0, 0, 0);
+        scene.add(this.sunLight);
 
-        return this.directionalLight;
+        return this.sunLight;
     }
 }
