@@ -97,7 +97,7 @@ export class InteractionManager {
         this.renderLanguageSwitcher();
         this.updateMobileHintText();
 
-        if (this.selectedObject) {
+        if (this.selectedObject && !this.isAnimatingToPlanet) {
             this.showInfoPanel(this.selectedObject);
         }
 
@@ -334,22 +334,32 @@ export class InteractionManager {
         this.controls.enableDamping = false;
     }
 
+    hideInfoPanelUI() {
+        this.infoPanel.classList.remove('is-open');
+        this.backdrop.classList.remove('is-visible');
+        document.body.classList.remove('panel-open');
+    }
+
     finalizeCameraAnimation() {
         this.camera.position.copy(this.targetCameraPos);
 
-        if (!this.controls) return;
+        if (this.controls) {
+            this.controls.target.copy(this.targetTarget);
+            this.controls.enableDamping = true;
+            this.controls.enabled = true;
 
-        this.controls.target.copy(this.targetTarget);
-        this.controls.enableDamping = true;
-        this.controls.enabled = true;
+            if (this.selectedObject) {
+                this.applyFocusControlsConstraints(this.selectedObject);
+            } else {
+                this.applyOverviewControlsConstraints();
+            }
 
-        if (this.selectedObject) {
-            this.applyFocusControlsConstraints(this.selectedObject);
-        } else {
-            this.applyOverviewControlsConstraints();
+            this.controls.update();
         }
 
-        this.controls.update();
+        if (this.selectedObject) {
+            this.showInfoPanel(this.selectedObject);
+        }
     }
 
     goToAboutMe() {
@@ -423,8 +433,7 @@ export class InteractionManager {
             object.outerGlowMesh.material.opacity = 0;
         }
 
-        this.showInfoPanel(object);
-
+        this.hideInfoPanelUI();
         this.animateCameraToObject(object);
 
         this.hideTooltip();
@@ -551,9 +560,7 @@ export class InteractionManager {
         this.selectedObject = null;
         this.activeDetailsRequest += 1;
 
-        this.infoPanel.classList.remove('is-open');
-        this.backdrop.classList.remove('is-visible');
-        document.body.classList.remove('panel-open');
+        this.hideInfoPanelUI();
         this.setMobileHintVisible(isMobileViewport() || this.useTouchInteraction);
 
         this.resetCameraPosition();
