@@ -57,7 +57,7 @@ class SolarSystemApp {
         this.animationController.initControls();
 
         // Инициализация InteractionManager
-        this.interactionManager = new InteractionManager(scene, camera, renderer);
+        this.interactionManager = new InteractionManager(scene, camera, renderer, this.cameraManager);
 
         this.interactionManager.registerInteractiveObject(this.sun);
         

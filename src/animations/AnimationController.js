@@ -14,13 +14,16 @@ export class AnimationController {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
         this.controls.dampingFactor = 0.05;
-        this.controls.rotateSpeed = 1.0;
-        this.controls.zoomSpeed = 0.1;
+        this.controls.rotateSpeed = window.innerWidth < 768 ? 0.65 : 1.0;
+        this.controls.zoomSpeed = window.innerWidth < 768 ? 0.08 : 0.1;
         this.controls.enablePan = false;
         this.controls.target.set(0, 0, 0);
-
-        // Сохраняем ссылку на target для InteractionManager
-        this.controls.target = new THREE.Vector3(0, 0, 0);
+        this.controls.minDistance = 800;
+        this.controls.maxDistance = 7000;
+        this.controls.touches = {
+            ONE: THREE.TOUCH.ROTATE,
+            TWO: THREE.TOUCH.DOLLY
+        };
 
         return this.controls;
     }

@@ -1,11 +1,13 @@
 import * as THREE from 'three';
 import { assetUrl } from '../utils/assetUrl.js';
+import { isCoarsePointer, isMobileViewport } from '../utils/viewport.js';
 
 export class InteractionManager {
-    constructor(scene, camera, renderer) {
+    constructor(scene, camera, renderer, cameraManager = null) {
         this.scene = scene;
         this.camera = camera;
         this.renderer = renderer;
+        this.cameraManager = cameraManager;
         this.controls = null;
         this.interactiveObjects = [];
         this.hoveredObject = null;
@@ -31,6 +33,12 @@ export class InteractionManager {
         this.labelToOther = new THREE.Vector3();
         this.labelClosestPoint = new THREE.Vector3();
         this.labelFrameCounter = 0;
+        this.useTouchInteraction = isCoarsePointer();
+        this.pointerDownX = 0;
+        this.pointerDownY = 0;
+        this.pointerDownTime = 0;
+        this.backdrop = null;
+        this.mobileHint = null;
 
         // Параметры анимации камеры
         this.isAnimatingToPlanet = false;
@@ -43,8 +51,11 @@ export class InteractionManager {
 
         this.initTooltip();
         this.initInfoPanel();
+        this.initBackdrop();
+        this.initMobileHint();
         this.initLanguageSwitcher();
         this.setupEventListeners();
+        this.setMobileHintVisible(isMobileViewport() || this.useTouchInteraction);
     }
 
     getInitialLanguage() {
@@ -80,73 +91,64 @@ export class InteractionManager {
         this.currentLanguage = language;
         window.localStorage.setItem('portfolio-language', language);
         this.renderLanguageSwitcher();
+        this.updateMobileHintText();
 
         if (this.selectedObject) {
             this.showInfoPanel(this.selectedObject);
         }
 
-        if (this.hoveredObject && this.tooltip.style.display !== 'none') {
+        if (this.hoveredObject && this.tooltip.classList.contains('is-visible')) {
             this.showTooltip(this.hoveredObject, this.lastPointerClientX, this.lastPointerClientY);
         }
     }
 
     initTooltip() {
         this.tooltip = document.createElement('div');
-        this.tooltip.style.position = 'absolute';
-        this.tooltip.style.display = 'none';
-        this.tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.88)';
-        this.tooltip.style.color = 'white';
-        this.tooltip.style.padding = '12px 16px';
-        this.tooltip.style.borderRadius = '8px';
-        this.tooltip.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-        this.tooltip.style.fontFamily = 'Arial, sans-serif';
-        this.tooltip.style.fontSize = '14px';
-        this.tooltip.style.maxWidth = '250px';
-        this.tooltip.style.pointerEvents = 'none';
-        this.tooltip.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
-        this.tooltip.style.zIndex = '1000';
-        this.tooltip.style.transition = 'opacity 0.2s ease';
+        this.tooltip.className = 'portfolio-tooltip';
         document.body.appendChild(this.tooltip);
     }
 
+    initBackdrop() {
+        this.backdrop = document.createElement('div');
+        this.backdrop.className = 'portfolio-backdrop';
+        this.backdrop.addEventListener('click', (event) => {
+            event.stopPropagation();
+            this.closeInfoPanel();
+        });
+        document.body.appendChild(this.backdrop);
+    }
+
+    initMobileHint() {
+        this.mobileHint = document.createElement('div');
+        this.mobileHint.className = 'mobile-hint';
+        this.mobileHint.textContent = this.currentLanguage === 'en'
+            ? 'Tap a planet · Swipe to rotate'
+            : 'Нажмите на планету · Свайп для вращения';
+        document.body.appendChild(this.mobileHint);
+    }
+
+    updateMobileHintText() {
+        if (!this.mobileHint) return;
+
+        this.mobileHint.textContent = this.currentLanguage === 'en'
+            ? 'Tap a planet · Swipe to rotate'
+            : 'Нажмите на планету · Свайп для вращения';
+    }
+
+    setMobileHintVisible(isVisible) {
+        if (!this.mobileHint) return;
+        this.mobileHint.classList.toggle('is-hidden', !isVisible);
+    }
+
     initInfoPanel() {
-        this.infoPanel = document.createElement('div');
-        this.infoPanel.style.position = 'absolute';
-        this.infoPanel.style.display = 'none';
-        this.infoPanel.style.backgroundColor = 'rgba(10, 10, 30, 0.94)';
-        this.infoPanel.style.color = 'white';
-        this.infoPanel.style.padding = '24px 28px';
-        this.infoPanel.style.borderRadius = '16px';
-        this.infoPanel.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-        this.infoPanel.style.fontFamily = 'Arial, sans-serif';
-        this.infoPanel.style.width = 'min(58vw, 920px)';
-        this.infoPanel.style.minWidth = '340px';
-        this.infoPanel.style.maxWidth = 'calc(100vw - 360px)';
-        this.infoPanel.style.height = 'calc(100vh - 92px)';
-        this.infoPanel.style.maxHeight = 'none';
-        this.infoPanel.style.overflowY = 'auto';
-        this.infoPanel.style.boxShadow = '0 8px 40px rgba(0, 0, 0, 0.7)';
-        this.infoPanel.style.zIndex = '2000';
-        this.infoPanel.style.top = '72px';
-        this.infoPanel.style.left = 'auto';
-        this.infoPanel.style.right = '20px';
-        this.infoPanel.style.transform = 'none';
-        this.infoPanel.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-        this.infoPanel.style.borderRadius = '16px';
+        this.infoPanel = document.createElement('aside');
+        this.infoPanel.className = 'portfolio-info-panel';
+        this.infoPanel.setAttribute('role', 'dialog');
+        this.infoPanel.setAttribute('aria-modal', 'true');
         document.body.appendChild(this.infoPanel);
 
-        // Закрытие по клику вне панели
-        document.addEventListener('click', (e) => {
-            if (this.infoPanel.style.display !== 'none' && 
-                !this.infoPanel.contains(e.target) && 
-                e.target !== this.renderer.domElement) {
-                this.closeInfoPanel();
-            }
-        });
-
-        // Закрытие по Escape
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.infoPanel.style.display !== 'none') {
+            if (e.key === 'Escape' && this.infoPanel.classList.contains('is-open')) {
                 this.closeInfoPanel();
             }
         });
@@ -156,9 +158,100 @@ export class InteractionManager {
         const canvas = this.renderer.domElement;
         canvas.style.cursor = 'default';
 
-        canvas.addEventListener('mousemove', this.onMouseMove.bind(this));
-        canvas.addEventListener('mouseleave', this.onMouseLeave.bind(this));
-        canvas.addEventListener('click', this.onClick.bind(this));
+        canvas.addEventListener('pointermove', this.onPointerMove.bind(this));
+        canvas.addEventListener('pointerleave', this.onPointerLeave.bind(this));
+        canvas.addEventListener('pointerdown', this.onPointerDown.bind(this));
+        canvas.addEventListener('pointerup', this.onPointerUp.bind(this));
+    }
+
+    updatePointerFromEvent(event) {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
+
+    getInteractiveMeshes() {
+        return this.interactiveObjects
+            .map((object) => object.getMesh())
+            .filter((mesh) => mesh !== null);
+    }
+
+    findObjectFromEvent(event) {
+        this.updatePointerFromEvent(event);
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        const intersects = this.raycaster.intersectObjects(this.getInteractiveMeshes());
+        if (intersects.length === 0) {
+            return null;
+        }
+
+        const hitMesh = intersects[0].object;
+        return this.interactiveObjects.find((object) => object.getMesh() === hitMesh) || null;
+    }
+
+    onPointerDown(event) {
+        if (event.pointerType === 'mouse' && event.button !== 0) {
+            return;
+        }
+
+        this.pointerDownX = event.clientX;
+        this.pointerDownY = event.clientY;
+        this.pointerDownTime = Date.now();
+    }
+
+    onPointerUp(event) {
+        if (this.isAnimatingToPlanet) {
+            return;
+        }
+
+        const deltaX = Math.abs(event.clientX - this.pointerDownX);
+        const deltaY = Math.abs(event.clientY - this.pointerDownY);
+        const elapsed = Date.now() - this.pointerDownTime;
+        const isTap = deltaX < 14 && deltaY < 14 && elapsed < 350;
+
+        if (!isTap) {
+            return;
+        }
+
+        const hitObject = this.findObjectFromEvent(event);
+        if (hitObject) {
+            this.selectObject(hitObject);
+            this.setMobileHintVisible(false);
+        }
+    }
+
+    onPointerMove(event) {
+        this.lastPointerClientX = event.clientX;
+        this.lastPointerClientY = event.clientY;
+
+        if (this.useTouchInteraction || event.pointerType === 'touch') {
+            return;
+        }
+
+        this.updatePointerFromEvent(event);
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        const intersects = this.raycaster.intersectObjects(this.getInteractiveMeshes());
+
+        if (intersects.length > 0) {
+            const hitMesh = intersects[0].object;
+            const hitObject = this.interactiveObjects.find((object) => object.getMesh() === hitMesh);
+
+            if (hitObject) {
+                this.hoverObject(hitObject, event.clientX, event.clientY);
+                this.renderer.domElement.style.cursor = 'pointer';
+                return;
+            }
+        }
+
+        this.unhoverObject();
+        this.renderer.domElement.style.cursor = 'default';
+    }
+
+    onPointerLeave() {
+        this.unhoverObject();
+        this.renderer.domElement.style.cursor = 'default';
+        this.hideTooltip();
     }
 
     registerInteractiveObject(object) {
@@ -201,68 +294,6 @@ export class InteractionManager {
 
         if (aboutMeObject) {
             this.selectObject(aboutMeObject);
-        }
-    }
-
-    onMouseMove(event) {
-        this.lastPointerClientX = event.clientX;
-        this.lastPointerClientY = event.clientY;
-
-        const rect = this.renderer.domElement.getBoundingClientRect();
-        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-
-        const meshes = this.interactiveObjects
-            .map((object) => object.getMesh())
-            .filter(mesh => mesh !== null);
-
-        const intersects = this.raycaster.intersectObjects(meshes);
-
-        if (intersects.length > 0) {
-            const hitMesh = intersects[0].object;
-            const hitObject = this.interactiveObjects.find((object) => object.getMesh() === hitMesh);
-
-            if (hitObject) {
-                this.hoverObject(hitObject, event.clientX, event.clientY);
-                this.renderer.domElement.style.cursor = 'pointer';
-                return;
-            }
-        }
-
-        this.unhoverObject();
-        this.renderer.domElement.style.cursor = 'default';
-    }
-
-    onMouseLeave() {
-        this.unhoverObject();
-        this.renderer.domElement.style.cursor = 'default';
-        this.hideTooltip();
-    }
-
-    onClick(event) {
-        if (this.isAnimatingToPlanet) return;
-
-        const rect = this.renderer.domElement.getBoundingClientRect();
-        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-
-        const meshes = this.interactiveObjects
-            .map((object) => object.getMesh())
-            .filter(mesh => mesh !== null);
-
-        const intersects = this.raycaster.intersectObjects(meshes);
-
-        if (intersects.length > 0) {
-            const hitMesh = intersects[0].object;
-            const hitObject = this.interactiveObjects.find((object) => object.getMesh() === hitMesh);
-
-            if (hitObject) {
-                this.selectObject(hitObject);
-            }
         }
     }
 
@@ -351,7 +382,8 @@ export class InteractionManager {
         const worldUp = new THREE.Vector3(0, 1, 0);
         const right = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
         const verticalLift = Math.max(object.radius * 0.12, 10);
-        const distance = Math.max(object.radius * 1.28, object.radius + 20);
+        const distanceMultiplier = isMobileViewport() ? 1.2 : 1;
+        const distance = Math.max(object.radius * 1.28, object.radius + 20) * distanceMultiplier;
 
         this.targetCameraPos.set(
             objectPos.x - forward.x * distance,
@@ -367,31 +399,15 @@ export class InteractionManager {
 
     async showInfoPanel(object) {
         this.infoPanel.innerHTML = `
-            <div style="position: relative; display: flex; flex-direction: column; height: 100%;">
-                <div style="position: absolute; top: 0; right: 0; display: flex; gap: 8px; z-index: 2;">
-                    <button id="goToAboutBtn" style="
-                        background: rgba(136,204,255,0.12);
-                        border: 1px solid rgba(136,204,255,0.25);
-                        color: white;
-                        font-size: 12px;
-                        cursor: pointer;
-                        padding: 7px 10px;
-                        border-radius: 999px;
-                        transition: background 0.2s;
-                    ">AboutMe</button>
-                    <button id="closeInfoBtn" style="
-                        background: rgba(255,255,255,0.1);
-                        border: none;
-                        color: white;
-                        font-size: 20px;
-                        cursor: pointer;
-                        padding: 4px 12px;
-                        border-radius: 8px;
-                        transition: background 0.2s;
-                    ">✕</button>
+            <div class="portfolio-info-panel__handle" aria-hidden="true"></div>
+            <div class="portfolio-info-panel__header">
+                <div class="portfolio-info-panel__title">${object.getShortLabel ? object.getShortLabel() : object.name}</div>
+                <div class="portfolio-info-panel__actions">
+                    <button type="button" id="goToAboutBtn" class="portfolio-info-panel__btn portfolio-info-panel__btn--about">AboutMe</button>
+                    <button type="button" id="closeInfoBtn" class="portfolio-info-panel__btn portfolio-info-panel__btn--close" aria-label="Close">✕</button>
                 </div>
-                <div class="portfolio-content-body" style="flex: 1; overflow-y: auto; padding-top: 8px; padding-right: 6px;">Loading...</div>
             </div>
+            <div class="portfolio-content-body portfolio-info-panel__body">Loading...</div>
         `;
 
         const aboutButton = this.infoPanel.querySelector('#goToAboutBtn');
@@ -410,11 +426,12 @@ export class InteractionManager {
             });
         }
 
-        this.infoPanel.style.display = 'block';
-        this.infoPanel.style.opacity = '1';
-        this.infoPanel.style.transform = 'none';
+        this.infoPanel.classList.add('is-open');
+        this.backdrop.classList.add('is-visible');
+        document.body.classList.add('panel-open');
+        this.setMobileHintVisible(false);
 
-        const contentBody = this.infoPanel.querySelector('.portfolio-content-body');
+        const contentBody = this.infoPanel.querySelector('.portfolio-info-panel__body');
         const requestId = ++this.activeDetailsRequest;
         const detailsMarkup = await this.loadContentMarkup(object, 'details');
 
@@ -454,7 +471,10 @@ export class InteractionManager {
         this.selectedObject = null;
         this.activeDetailsRequest += 1;
 
-        this.infoPanel.style.display = 'none';
+        this.infoPanel.classList.remove('is-open');
+        this.backdrop.classList.remove('is-visible');
+        document.body.classList.remove('panel-open');
+        this.setMobileHintVisible(isMobileViewport() || this.useTouchInteraction);
 
         this.resetCameraPosition();
     }
@@ -469,36 +489,44 @@ export class InteractionManager {
             this.startTarget.set(0, 0, 0);
         }
         
-        // Целевая позиция - исходное положение камеры
-        this.targetCameraPos.set(3000, 1200, 2000);
-        this.targetTarget.set(0, 0, 0);
+        if (this.cameraManager) {
+            this.targetCameraPos.copy(this.cameraManager.getDefaultPosition());
+            this.targetTarget.copy(this.cameraManager.getDefaultTarget());
+        } else {
+            this.targetCameraPos.set(4000, 1600, 2000);
+            this.targetTarget.set(0, 0, 0);
+        }
 
         this.isAnimatingToPlanet = true;
         this.animationProgress = 0;
     }
 
     async showTooltip(object, x, y) {
-        const offsetX = 20;
-        const offsetY = -20;
-        
+        if (this.useTouchInteraction) {
+            return;
+        }
+
+        const offsetX = 16;
+        const offsetY = -16;
+        const tooltipWidth = Math.min(280, window.innerWidth - 32);
+        const tooltipHeight = 120;
+
         let tooltipX = x + offsetX;
         let tooltipY = y + offsetY;
 
-        // Проверяем, чтобы тултип не выходил за экран
-        const tooltipWidth = 250;
-        const tooltipHeight = 100;
-        if (tooltipX + tooltipWidth > window.innerWidth) {
+        if (tooltipX + tooltipWidth > window.innerWidth - 16) {
             tooltipX = x - tooltipWidth - offsetX;
         }
-        if (tooltipY + tooltipHeight > window.innerHeight) {
-            tooltipY = y - tooltipHeight - offsetY;
+        if (tooltipY < 16) {
+            tooltipY = y + Math.abs(offsetY);
+        }
+        if (tooltipY + tooltipHeight > window.innerHeight - 16) {
+            tooltipY = window.innerHeight - tooltipHeight - 16;
         }
 
-        this.tooltip.style.left = tooltipX + 'px';
-        this.tooltip.style.top = tooltipY + 'px';
-        this.tooltip.style.display = 'block';
-        this.tooltip.style.opacity = '1';
-
+        this.tooltip.style.left = `${Math.max(16, tooltipX)}px`;
+        this.tooltip.style.top = `${Math.max(16, tooltipY)}px`;
+        this.tooltip.classList.add('is-visible');
         this.tooltip.innerHTML = '<div class="portfolio-content-body">Loading...</div>';
 
         const requestId = ++this.activeTooltipRequest;
@@ -510,8 +538,7 @@ export class InteractionManager {
     }
 
     hideTooltip() {
-        this.tooltip.style.display = 'none';
-        this.tooltip.style.opacity = '0';
+        this.tooltip.classList.remove('is-visible');
         this.activeTooltipRequest += 1;
     }
 
@@ -553,7 +580,15 @@ export class InteractionManager {
         return markup;
     }
 
-    onResize() {}
+    onResize() {
+        this.useTouchInteraction = isCoarsePointer();
+
+        if (this.infoPanel.classList.contains('is-open')) {
+            this.setMobileHintVisible(false);
+        } else {
+            this.setMobileHintVisible(isMobileViewport() || this.useTouchInteraction);
+        }
+    }
 
     update(controls) {
         // Сохраняем ссылку на controls если ее нет
@@ -585,6 +620,10 @@ export class InteractionManager {
     }
 
     shouldUpdateLabels() {
+        if (isMobileViewport() || this.useTouchInteraction) {
+            return false;
+        }
+
         this.labelFrameCounter += 1;
 
         if (this.isAnimatingToPlanet) {
@@ -679,6 +718,12 @@ export class InteractionManager {
         if (this.tooltip) {
             document.body.removeChild(this.tooltip);
         }
+        if (this.backdrop) {
+            document.body.removeChild(this.backdrop);
+        }
+        if (this.mobileHint) {
+            document.body.removeChild(this.mobileHint);
+        }
         if (this.infoPanel) {
             document.body.removeChild(this.infoPanel);
         }
@@ -688,5 +733,6 @@ export class InteractionManager {
         this.objectLabels.forEach(({ element }) => {
             document.body.removeChild(element);
         });
+        document.body.classList.remove('panel-open');
     }
 }
