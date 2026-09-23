@@ -11,7 +11,6 @@ export class InteractionManager {
         this.selectedObject = null;
         this.tooltip = null;
         this.raycaster = new THREE.Raycaster();
-        this.visibilityRaycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
         this.clock = new THREE.Clock();
         this.contentCache = new Map();
@@ -22,6 +21,15 @@ export class InteractionManager {
         this.objectLabels = [];
         this.lastPointerClientX = 0;
         this.lastPointerClientY = 0;
+        this.cachedOcclusionPlanets = [];
+        this.labelScreenPosition = new THREE.Vector3();
+        this.labelCameraPosition = new THREE.Vector3();
+        this.labelWorldPosition = new THREE.Vector3();
+        this.labelObjectCenter = new THREE.Vector3();
+        this.labelToObject = new THREE.Vector3();
+        this.labelToOther = new THREE.Vector3();
+        this.labelClosestPoint = new THREE.Vector3();
+        this.labelFrameCounter = 0;
 
         // Параметры анимации камеры
         this.isAnimatingToPlanet = false;
@@ -85,12 +93,11 @@ export class InteractionManager {
         this.tooltip = document.createElement('div');
         this.tooltip.style.position = 'absolute';
         this.tooltip.style.display = 'none';
-        this.tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+        this.tooltip.style.backgroundColor = 'rgba(0, 0, 0, 0.88)';
         this.tooltip.style.color = 'white';
         this.tooltip.style.padding = '12px 16px';
         this.tooltip.style.borderRadius = '8px';
         this.tooltip.style.border = '1px solid rgba(255, 255, 255, 0.2)';
-        this.tooltip.style.backdropFilter = 'blur(10px)';
         this.tooltip.style.fontFamily = 'Arial, sans-serif';
         this.tooltip.style.fontSize = '14px';
         this.tooltip.style.maxWidth = '250px';
@@ -105,12 +112,11 @@ export class InteractionManager {
         this.infoPanel = document.createElement('div');
         this.infoPanel.style.position = 'absolute';
         this.infoPanel.style.display = 'none';
-        this.infoPanel.style.backgroundColor = 'rgba(10, 10, 30, 0.92)';
+        this.infoPanel.style.backgroundColor = 'rgba(10, 10, 30, 0.94)';
         this.infoPanel.style.color = 'white';
         this.infoPanel.style.padding = '24px 28px';
         this.infoPanel.style.borderRadius = '16px';
         this.infoPanel.style.border = '1px solid rgba(255, 255, 255, 0.15)';
-        this.infoPanel.style.backdropFilter = 'blur(20px)';
         this.infoPanel.style.fontFamily = 'Arial, sans-serif';
         this.infoPanel.style.width = 'min(58vw, 920px)';
         this.infoPanel.style.minWidth = '340px';
@@ -156,10 +162,20 @@ export class InteractionManager {
 
     registerInteractiveObject(object) {
         this.interactiveObjects.push(object);
+        this.rebuildOcclusionCache();
 
         if (object.getContentKey() !== 'about-me') {
             this.createObjectLabel(object);
         }
+    }
+
+    rebuildOcclusionCache() {
+        this.cachedOcclusionPlanets = this.interactiveObjects
+            .filter((object) => object.getContentKey() !== 'about-me' && object.getMesh())
+            .map((object) => ({
+                object,
+                radius: object.radius || 50
+            }));
     }
 
     createObjectLabel(object) {
@@ -266,6 +282,10 @@ export class InteractionManager {
             object.onHoverStart();
         }
 
+        if (object.forceLoadTexture) {
+            object.forceLoadTexture();
+        }
+
         this.showTooltip(object, x, y);
     }
 
@@ -299,6 +319,10 @@ export class InteractionManager {
         object.isSlowed = true;
 
         object.instantStop = true;
+
+        if (object.forceLoadTexture) {
+            object.forceLoadTexture();
+        }
 
         if (object.outerGlowMesh) {
             object.outerGlowMesh.material.opacity = 0;
@@ -561,53 +585,89 @@ export class InteractionManager {
         this.updateObjectLabels();
     }
 
+    shouldUpdateLabels() {
+        this.labelFrameCounter += 1;
+
+        if (this.isAnimatingToPlanet) {
+            return true;
+        }
+
+        return this.labelFrameCounter % 2 === 0;
+    }
+
+    isOccludedByPlanet(object, objectCenter, objectDistance) {
+        this.labelCameraPosition.copy(this.camera.position);
+        this.labelToObject.subVectors(objectCenter, this.labelCameraPosition);
+        const toObjectLength = this.labelToObject.length();
+
+        if (toObjectLength === 0) {
+            return false;
+        }
+
+        this.labelToObject.multiplyScalar(1 / toObjectLength);
+
+        for (const { object: otherObject, radius } of this.cachedOcclusionPlanets) {
+            if (otherObject === object) {
+                continue;
+            }
+
+            const otherCenter = otherObject.getPosition();
+            this.labelToOther.subVectors(otherCenter, this.labelCameraPosition);
+            const otherDistance = this.labelToOther.length();
+
+            if (otherDistance >= objectDistance) {
+                continue;
+            }
+
+            const projection = this.labelToOther.dot(this.labelToObject);
+            if (projection <= 0 || projection >= objectDistance - object.radius * 0.25) {
+                continue;
+            }
+
+            this.labelClosestPoint.copy(this.labelCameraPosition).addScaledVector(this.labelToObject, projection);
+            const distToLine = otherCenter.distanceTo(this.labelClosestPoint);
+
+            if (distToLine < radius * 0.75) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     updateObjectLabels() {
-        const screenPosition = new THREE.Vector3();
-        const cameraPosition = this.camera.position.clone();
-        const planetMeshes = this.interactiveObjects
-            .map((object) => ({ object, mesh: object.getMesh() }))
-            .filter(({ mesh }) => mesh !== null);
+        if (!this.shouldUpdateLabels()) {
+            return;
+        }
 
         this.objectLabels.forEach(({ object, element }) => {
-            const worldPosition = object.getPosition().clone();
-            worldPosition.y += Math.max(object.radius + 24, 42);
-            screenPosition.copy(worldPosition).project(this.camera);
+            this.labelWorldPosition.copy(object.getPosition());
+            this.labelWorldPosition.y += Math.max(object.radius + 24, 42);
+            this.labelScreenPosition.copy(this.labelWorldPosition).project(this.camera);
 
-            const isVisible = screenPosition.z < 1 &&
-                screenPosition.z > -1 &&
-                Math.abs(screenPosition.x) <= 1.2 &&
-                Math.abs(screenPosition.y) <= 1.2;
+            const isVisible = this.labelScreenPosition.z < 1 &&
+                this.labelScreenPosition.z > -1 &&
+                Math.abs(this.labelScreenPosition.x) <= 1.2 &&
+                Math.abs(this.labelScreenPosition.y) <= 1.2;
 
             if (!isVisible) {
                 element.style.opacity = '0';
                 return;
             }
 
-            const objectCenter = object.getPosition();
-            const direction = objectCenter.clone().sub(cameraPosition).normalize();
-            const objectDistance = cameraPosition.distanceTo(objectCenter);
-            this.visibilityRaycaster.set(cameraPosition, direction);
+            this.labelObjectCenter.copy(object.getPosition());
+            const objectDistance = this.labelCameraPosition.copy(this.camera.position)
+                .distanceTo(this.labelObjectCenter);
 
-            const intersections = this.visibilityRaycaster.intersectObjects(
-                planetMeshes.map(({ mesh }) => mesh),
-                false
-            );
-
-            const blockingHit = intersections.find((intersection) =>
-                intersection.object !== object.getMesh() &&
-                intersection.distance < objectDistance - object.radius * 0.25
-            );
-
-            if (blockingHit) {
+            if (this.isOccludedByPlanet(object, this.labelObjectCenter, objectDistance)) {
                 element.style.opacity = '0';
                 return;
             }
 
-            const x = (screenPosition.x * 0.5 + 0.5) * window.innerWidth;
-            const y = (-screenPosition.y * 0.5 + 0.5) * window.innerHeight;
+            const x = (this.labelScreenPosition.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-this.labelScreenPosition.y * 0.5 + 0.5) * window.innerHeight;
 
-            element.style.left = `${x}px`;
-            element.style.top = `${y}px`;
+            element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
             element.style.opacity = object === this.selectedObject ? '0.35' : '1';
         });
     }

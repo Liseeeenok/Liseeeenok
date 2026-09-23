@@ -75,41 +75,41 @@ class SolarSystemApp {
                 this.interactionManager.update(controls);
             }
         });
+        this.animationController.setupVisibilityHandler();
 
         // Обработка resize
         window.addEventListener('resize', () => this.onWindowResize());
     }
 
     async createAllPlanets() {
-        // Автоматическое создание всех зарегистрированных планет
-        const planetPromises = this.planetConfigs.map(async (planetConfig) => {
-            const motionConfig = this.getPlanetMotionConfig(planetConfig);
-            const visualConfig = this.getPlanetVisualConfig(planetConfig);
-            const planet = new ProjectPlanet({
-                description: `${planetConfig.name} project`,
-                orbitSpeed: motionConfig.orbitSpeed,
-                rotationSpeed: motionConfig.rotationSpeed,
-                hasAtmosphere: false,
-                atmosphereOpacity: 0,
-                slowDownFactor: 0.15,
-                glowIntensity: visualConfig.glowIntensity,
-                glowRadius: planetConfig.surfaceType === 'gas' ? 1.125 : 1.02,
-                ...planetConfig
+        const batchSize = 3;
+
+        for (let index = 0; index < this.planetConfigs.length; index += batchSize) {
+            const batch = this.planetConfigs.slice(index, index + batchSize);
+
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+
+            batch.forEach((planetConfig) => {
+                const motionConfig = this.getPlanetMotionConfig(planetConfig);
+                const visualConfig = this.getPlanetVisualConfig(planetConfig);
+                const planet = new ProjectPlanet({
+                    description: `${planetConfig.name} project`,
+                    orbitSpeed: motionConfig.orbitSpeed,
+                    rotationSpeed: motionConfig.rotationSpeed,
+                    hasAtmosphere: false,
+                    atmosphereOpacity: 0,
+                    slowDownFactor: 0.15,
+                    glowIntensity: visualConfig.glowIntensity,
+                    glowRadius: planetConfig.surfaceType === 'gas' ? 1.125 : 1.02,
+                    ...planetConfig
+                });
+
+                const planetGroup = planet.create();
+                this.mainGroup.add(planetGroup);
+                this.planets.push(planet);
             });
+        }
 
-            // Создание планеты
-            const planetGroup = planet.create();
-            this.mainGroup.add(planetGroup);
-
-            this.planets.push(planet);
-
-            console.log(`✅ Planet created: ${planet.name} (Distance: ${planet.distance}, Radius: ${planet.radius})`);
-            return planet;
-        });
-
-        await Promise.all(planetPromises);
-
-        // Сортировка планет по расстоянию от Солнца (для порядка)
         this.planets.sort((a, b) => a.distance - b.distance);
     }
 
@@ -166,6 +166,8 @@ class SolarSystemApp {
     }
 
     update() {
+        const camera = this.cameraManager.getCamera();
+
         this.mainGroup.children.forEach(child => {
             if (child.isPoints) {
                 child.rotation.y += 0.002;
@@ -175,6 +177,9 @@ class SolarSystemApp {
 
         this.planets.forEach(planet => {
             planet.update();
+            if (camera && planet.loadTextureIfNeeded) {
+                planet.loadTextureIfNeeded(camera);
+            }
         });
     }
 

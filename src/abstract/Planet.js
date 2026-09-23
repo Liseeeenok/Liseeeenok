@@ -59,6 +59,7 @@ export class Planet {
         // Для эффектов
         this.glowMesh = null;
         this.label = null;
+        this.glowPhase = Math.random() * Math.PI * 2;
     }
 
     // Абстрактные методы (должны быть переопределены)
@@ -83,7 +84,7 @@ export class Planet {
         let material = this.createCustomMaterial();
 
         // Создание геометрии
-        const geometry = new THREE.SphereGeometry(this.radius, 128, 128);
+        const geometry = new THREE.SphereGeometry(this.radius, 48, 48);
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.material = material;
@@ -114,7 +115,7 @@ export class Planet {
     }
 
     createGlowEffect() {
-        const glowGeometry = new THREE.SphereGeometry(this.radius * this.glowRadius, 64, 64);
+        const glowGeometry = new THREE.SphereGeometry(this.radius * this.glowRadius, 16, 16);
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: this.glowColor,
             transparent: true,
@@ -125,7 +126,7 @@ export class Planet {
         });
         this.glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
 
-        const outerGlowGeometry = new THREE.SphereGeometry(this.radius * this.glowRadius * 1.15, 64, 64);
+        const outerGlowGeometry = new THREE.SphereGeometry(this.radius * this.glowRadius * 1.15, 16, 16);
         const outerGlowMaterial = new THREE.MeshBasicMaterial({
             color: this.glowColor,
             transparent: true,
@@ -176,7 +177,7 @@ export class Planet {
     }
 
     addAtmosphere() {
-        const atmosphereGeometry = new THREE.SphereGeometry(this.radius * 1.02, 128, 128);
+        const atmosphereGeometry = new THREE.SphereGeometry(this.radius * 1.02, 24, 24);
         const atmosphereMaterial = new THREE.MeshPhongMaterial({
             color: this.atmosphereColor,
             transparent: true,
@@ -213,30 +214,27 @@ export class Planet {
     }
 
     updateGlowAnimation(deltaTime) {
+        this.glowPhase += deltaTime * 0.001;
+
         if (this.glowMesh) {
-            // Пульсация свечения
-            const pulse = 1 + 0.1 * Math.sin(Date.now() * 0.001 * 0.5);
+            const pulse = 1 + 0.1 * Math.sin(this.glowPhase * 0.5);
             this.glowMesh.scale.set(pulse, pulse, pulse);
 
-            // Плавное изменение прозрачности
             if (!this.isHovered) {
-                this.glowMesh.material.opacity = this.glowIntensity * (0.08 + 0.04 * Math.sin(Date.now() * 0.001 * 0.3));
+                this.glowMesh.material.opacity = this.glowIntensity * (0.08 + 0.04 * Math.sin(this.glowPhase * 0.3));
             }
         }
 
         if (this.outerGlowMesh) {
-            // Внешнее свечение пульсирует с другой скоростью
-            const pulse = 1 + 0.08 * Math.sin(Date.now() * 0.001 * 0.4 + 1);
+            const pulse = 1 + 0.08 * Math.sin(this.glowPhase * 0.4 + 1);
             this.outerGlowMesh.scale.set(pulse, pulse, pulse);
-            this.outerGlowMesh.material.opacity = this.glowIntensity * (0.07 + 0.03 * Math.sin(Date.now() * 0.001 * 0.25));
+            this.outerGlowMesh.material.opacity = this.glowIntensity * (0.07 + 0.03 * Math.sin(this.glowPhase * 0.25));
         }
 
         if (this.glowParticles) {
             this.glowParticles.rotation.y += 0.002 * deltaTime;
             this.glowParticles.rotation.x += 0.001 * deltaTime;
-
-            // Пульсация частиц
-            this.glowParticles.material.opacity = this.glowIntensity * (0.18 + 0.1 * Math.sin(Date.now() * 0.001 * 0.6));
+            this.glowParticles.material.opacity = this.glowIntensity * (0.18 + 0.1 * Math.sin(this.glowPhase * 0.6));
         }
     }
 

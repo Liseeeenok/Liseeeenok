@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { Planet } from '../abstract/Planet.js';
+import { loadTexture } from '../core/TextureManager.js';
+
+const TEXTURE_LOAD_DISTANCE = 3500;
 
 export class ProjectPlanet extends Planet {
     constructor(config) {
@@ -7,6 +10,7 @@ export class ProjectPlanet extends Planet {
         this.surfaceType = config.surfaceType || 'rocky';
         this.bandColors = config.bandColors || [];
         this.texturePath = config.texturePath || null;
+        this.textureLoadState = this.texturePath ? 'pending' : 'loaded';
 
         if (this.texturePath) {
             this.originalEmissiveIntensity = 0;
@@ -16,19 +20,19 @@ export class ProjectPlanet extends Planet {
 
     createCustomMaterial() {
         if (this.texturePath) {
-            const texture = new THREE.TextureLoader().load(this.texturePath);
-            texture.colorSpace = THREE.SRGBColorSpace;
-
             return new THREE.MeshStandardMaterial({
-                map: texture,
-                color: 0xffffff,
+                color: this.color,
                 metalness: 0,
                 roughness: 1,
-                emissive: 0xffffff,
-                emissiveIntensity: 0
+                emissive: this.emissive,
+                emissiveIntensity: this.emissiveIntensity
             });
         }
 
+        return this.createProceduralMaterial();
+    }
+
+    createProceduralMaterial() {
         const canvas = document.createElement('canvas');
         canvas.width = 1024;
         canvas.height = 512;
@@ -39,6 +43,55 @@ export class ProjectPlanet extends Planet {
         }
 
         return this.createSolidPlanetMaterial(ctx, canvas);
+    }
+
+    loadTextureIfNeeded(camera) {
+        if (!this.texturePath || this.textureLoadState !== 'pending' || !this.material) {
+            return;
+        }
+
+        const distance = camera.position.distanceTo(this.getPosition());
+        if (distance > TEXTURE_LOAD_DISTANCE) {
+            return;
+        }
+
+        this.textureLoadState = 'loading';
+
+        loadTexture(this.texturePath)
+            .then((texture) => {
+                this.material.map = texture;
+                this.material.color.setHex(0xffffff);
+                this.material.emissive.setHex(0xffffff);
+                this.material.emissiveIntensity = 0;
+                this.material.needsUpdate = true;
+                this.textureLoadState = 'loaded';
+            })
+            .catch(() => {
+                this.textureLoadState = 'pending';
+            });
+    }
+
+    forceLoadTexture() {
+        if (!this.texturePath || this.textureLoadState === 'loaded' || this.textureLoadState === 'loading') {
+            return;
+        }
+
+        this.textureLoadState = 'loading';
+
+        loadTexture(this.texturePath)
+            .then((texture) => {
+                if (!this.material) return;
+
+                this.material.map = texture;
+                this.material.color.setHex(0xffffff);
+                this.material.emissive.setHex(0xffffff);
+                this.material.emissiveIntensity = 0;
+                this.material.needsUpdate = true;
+                this.textureLoadState = 'loaded';
+            })
+            .catch(() => {
+                this.textureLoadState = 'pending';
+            });
     }
 
     createGasMaterial(ctx, canvas) {

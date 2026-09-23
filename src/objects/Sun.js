@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { loadTexture } from '../core/TextureManager.js';
 
 export class Sun {
     constructor() {
@@ -19,14 +20,10 @@ export class Sun {
 
     create() {
         // Солнце
-        const sun_geom = new THREE.SphereGeometry(430, 128, 128);
-        const sunTexture = new THREE.TextureLoader().load('/textures/2k_sun.jpg');
-        sunTexture.colorSpace = THREE.SRGBColorSpace;
+        const sun_geom = new THREE.SphereGeometry(430, 48, 48);
         const sun_mat = new THREE.MeshStandardMaterial({
-            map: sunTexture,
-            color: 0xffffff,
-            emissiveMap: sunTexture,
-            emissive: 0xffffff,
+            color: 0xffaa44,
+            emissive: 0xff8844,
             emissiveIntensity: this.originalEmissiveIntensity,
             metalness: 0,
             roughness: 1
@@ -34,8 +31,16 @@ export class Sun {
         this.sun = new THREE.Mesh(sun_geom, sun_mat);
         this.group.add(this.sun);
 
+        loadTexture('/textures/2k_sun.jpg').then((sunTexture) => {
+            sun_mat.map = sunTexture;
+            sun_mat.emissiveMap = sunTexture;
+            sun_mat.color.setHex(0xffffff);
+            sun_mat.emissive.setHex(0xffffff);
+            sun_mat.needsUpdate = true;
+        });
+
         // Внешнее свечение (корона)
-        const coronaGeometry = new THREE.SphereGeometry(460, 64, 64);
+        const coronaGeometry = new THREE.SphereGeometry(460, 16, 16);
         const coronaMaterial = new THREE.MeshBasicMaterial({
             color: 0xff8844,
             transparent: true,
@@ -46,7 +51,7 @@ export class Sun {
         this.group.add(this.corona);
 
         // Второй слой свечения
-        const glowGeometry = new THREE.SphereGeometry(500, 64, 64);
+        const glowGeometry = new THREE.SphereGeometry(500, 16, 16);
         const glowMaterial = new THREE.MeshBasicMaterial({
             color: 0xffaa66,
             transparent: true,

@@ -85,9 +85,8 @@ canvas {
   gap: 4px;
   padding: 4px;
   border-radius: 999px;
-  background: rgba(8, 12, 24, 0.72);
+  background: rgba(8, 12, 24, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(14px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -113,13 +112,12 @@ canvas {
   left: 0;
   top: 0;
   z-index: 1500;
-  transform: translate(-50%, -50%);
+  will-change: transform, opacity;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(8, 14, 28, 0.74);
+  background: rgba(8, 14, 28, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
-  backdrop-filter: blur(10px);
   color: #f4f8ff;
   font-size: 11px;
   line-height: 1.25;

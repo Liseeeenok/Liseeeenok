@@ -26,11 +26,13 @@ export class AnimationController {
     }
 
     startAnimation(updateCallback) {
+        this.updateCallback = updateCallback;
+
         const animate = () => {
             this.animationFrameId = requestAnimationFrame(animate);
 
-            if (updateCallback) {
-                updateCallback();
+            if (this.updateCallback) {
+                this.updateCallback();
             }
 
             if (this.controls) {
@@ -40,13 +42,26 @@ export class AnimationController {
             this.renderer.render(this.scene, this.camera);
         };
 
-        animate();
+        if (!this.animationFrameId) {
+            animate();
+        }
     }
 
     stopAnimation() {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
+            this.animationFrameId = null;
         }
+    }
+
+    setupVisibilityHandler() {
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.stopAnimation();
+            } else if (this.updateCallback) {
+                this.startAnimation(this.updateCallback);
+            }
+        });
     }
 
     getControls() {
