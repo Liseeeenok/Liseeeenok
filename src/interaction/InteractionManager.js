@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { assetUrl } from '../utils/assetUrl.js';
-import { computeDesktopFocusFrame, getFocusMinDistance, isCoarsePointer, isMobileViewport } from '../utils/viewport.js';
+import { computeDesktopFocusFrame, getFocusMinDistance, isCoarsePointer, isMobileViewport, isSunObject } from '../utils/viewport.js';
 
 export class InteractionManager {
     constructor(scene, camera, renderer, cameraManager = null) {
@@ -313,7 +313,9 @@ export class InteractionManager {
         if (!this.controls || !object) return;
 
         this.controls.minDistance = getFocusMinDistance(object);
-        this.controls.maxDistance = Math.max(object.radius * 2.5, 250);
+        this.controls.maxDistance = isSunObject(object)
+            ? Math.max(object.radius * 3.5, 1600)
+            : Math.max(object.radius * 2.5, 250);
     }
 
     applyOverviewControlsConstraints() {

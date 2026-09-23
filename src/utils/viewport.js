@@ -68,6 +68,20 @@ export function computeDesktopFocusFrame(object, camera, objectPos, startCameraP
     const maxDistance = radius * (isSun ? 2.8 : 3.4);
     distance = THREE.MathUtils.clamp(distance, minDistance, maxDistance);
 
+    const planetScreenX = 0.30;
+    const offsetFraction = 0.5 - planetScreenX;
+    const offsetTangent = Math.tan(hFov * offsetFraction);
+
+    if (isSun) {
+        const sunMaxDistance = Math.max(radius * 3.5, 1600);
+        const maxCameraDistance = sunMaxDistance / Math.sqrt(1 + offsetTangent * offsetTangent);
+        distance = Math.min(distance, maxCameraDistance);
+    }
+
+    const targetOffset = distance * offsetTangent;
+    const targetTarget = objectPos.clone().addScaledVector(screenRight, targetOffset);
+    targetTarget.y = objectPos.y;
+
     const targetCameraPos = new THREE.Vector3()
         .copy(objectPos)
         .addScaledVector(approachDir, distance);
@@ -84,11 +98,6 @@ export function computeDesktopFocusFrame(object, camera, objectPos, startCameraP
 
     // OrbitControls always keeps controls.target at screen center.
     // Shift the look-at point to the right so the planet appears on the left.
-    const planetScreenX = 0.30;
-    const offsetFraction = 0.5 - planetScreenX;
-    const targetOffset = distance * Math.tan(hFov * offsetFraction);
-    const targetTarget = objectPos.clone().addScaledVector(screenRight, targetOffset);
-    targetTarget.y = objectPos.y;
 
     return {
         targetCameraPos,
