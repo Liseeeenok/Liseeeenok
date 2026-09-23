@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { loadTexture } from '../core/TextureManager.js';
+import { assetUrl } from '../utils/assetUrl.js';
 
 export class Sun {
     constructor() {
@@ -31,7 +32,7 @@ export class Sun {
         this.sun = new THREE.Mesh(sun_geom, sun_mat);
         this.group.add(this.sun);
 
-        loadTexture('/textures/2k_sun.jpg').then((sunTexture) => {
+        loadTexture(assetUrl('textures/2k_sun.jpg')).then((sunTexture) => {
             sun_mat.map = sunTexture;
             sun_mat.emissiveMap = sunTexture;
             sun_mat.color.setHex(0xffffff);

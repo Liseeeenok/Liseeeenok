@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { assetUrl } from '../utils/assetUrl.js';
 
 export class InteractionManager {
     constructor(scene, camera, renderer) {
@@ -522,10 +523,8 @@ export class InteractionManager {
         }
 
         const paths = [
-            `/content/${this.currentLanguage}/${object.getContentKey()}/${type}.html`,
-            `/public/content/${this.currentLanguage}/${object.getContentKey()}/${type}.html`,
-            `/content/${object.getContentKey()}/${type}.html`,
-            `/public/content/${object.getContentKey()}/${type}.html`
+            assetUrl(`content/${this.currentLanguage}/${object.getContentKey()}/${type}.html`),
+            assetUrl(`content/${object.getContentKey()}/${type}.html`)
         ];
 
         let markup = type === 'label'
