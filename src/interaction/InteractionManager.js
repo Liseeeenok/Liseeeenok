@@ -48,6 +48,10 @@ export class InteractionManager {
         this.targetCameraPos = new THREE.Vector3();
         this.startTarget = new THREE.Vector3();
         this.targetTarget = new THREE.Vector3();
+        this.overviewMinDistance = 800;
+        this.overviewMaxDistance = 7000;
+        this.viewDirection = new THREE.Vector3();
+        this.cameraRight = new THREE.Vector3();
 
         this.initTooltip();
         this.initInfoPanel();
@@ -305,6 +309,45 @@ export class InteractionManager {
         return this.interactiveObjects.find((object) => object.getContentKey() === contentKey);
     }
 
+    applyFocusControlsConstraints(object) {
+        if (!this.controls || !object) return;
+
+        this.controls.minDistance = Math.max(object.radius * 0.25, 5);
+        this.controls.maxDistance = Math.max(object.radius * 2.5, 250);
+    }
+
+    applyOverviewControlsConstraints() {
+        if (!this.controls) return;
+
+        this.controls.minDistance = this.overviewMinDistance;
+        this.controls.maxDistance = this.overviewMaxDistance;
+    }
+
+    applyAnimationControlsConstraints(object = null) {
+        if (!this.controls) return;
+
+        this.controls.minDistance = object ? Math.max(object.radius * 0.2, 4) : 4;
+        this.controls.maxDistance = 12000;
+        this.controls.enableDamping = false;
+    }
+
+    finalizeCameraAnimation() {
+        this.camera.position.copy(this.targetCameraPos);
+
+        if (!this.controls) return;
+
+        this.controls.target.copy(this.targetTarget);
+        this.controls.enableDamping = true;
+
+        if (this.selectedObject) {
+            this.applyFocusControlsConstraints(this.selectedObject);
+        } else {
+            this.applyOverviewControlsConstraints();
+        }
+
+        this.controls.update();
+    }
+
     goToAboutMe() {
         const aboutMeObject = this.findInteractiveObjectByContentKey('about-me');
 
@@ -387,6 +430,8 @@ export class InteractionManager {
         const objectPos = object.getPosition();
         const mobile = isMobileViewport();
 
+        this.applyAnimationControlsConstraints(object);
+
         this.startCameraPos.copy(this.camera.position);
 
         if (this.controls) {
@@ -400,7 +445,6 @@ export class InteractionManager {
             ? approach.normalize()
             : new THREE.Vector3(0, 0, -1);
         const worldUp = new THREE.Vector3(0, 1, 0);
-        const right = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
 
         if (mobile) {
             const verticalLift = Math.max(object.radius * 0.12, 10);
@@ -420,7 +464,10 @@ export class InteractionManager {
                 objectPos.y - forward.y * distance + verticalLift,
                 objectPos.z - forward.z * distance
             );
-            this.targetTarget.copy(objectPos).add(right.multiplyScalar(targetOffset));
+
+            this.viewDirection.subVectors(objectPos, this.targetCameraPos).normalize();
+            this.cameraRight.crossVectors(this.viewDirection, worldUp).normalize();
+            this.targetTarget.copy(objectPos).add(this.cameraRight.multiplyScalar(targetOffset));
         }
 
         this.isAnimatingToPlanet = true;
@@ -515,7 +562,6 @@ export class InteractionManager {
     }
 
     resetCameraPosition() {
-        // Сохраняем текущую позицию камеры как начальную для анимации
         this.startCameraPos.copy(this.camera.position);
 
         if (this.controls) {
@@ -523,7 +569,9 @@ export class InteractionManager {
         } else {
             this.startTarget.set(0, 0, 0);
         }
-        
+
+        this.applyAnimationControlsConstraints();
+
         if (this.cameraManager) {
             this.targetCameraPos.copy(this.cameraManager.getDefaultPosition());
             this.targetTarget.copy(this.cameraManager.getDefaultTarget());
@@ -640,21 +688,20 @@ export class InteractionManager {
 
         // Обновляем анимацию камеры
         if (this.isAnimatingToPlanet) {
-            this.animationProgress += 0.02; // Скорость анимации
-            
+            this.animationProgress += 0.02;
+
             if (this.animationProgress >= 1) {
                 this.animationProgress = 1;
                 this.isAnimatingToPlanet = false;
-            }
+                this.finalizeCameraAnimation();
+            } else {
+                const t = this.easeInOutCubic(this.animationProgress);
 
-            // Плавная интерполяция
-            const t = this.easeInOutCubic(this.animationProgress);
-            
-            this.camera.position.lerpVectors(this.startCameraPos, this.targetCameraPos, t);
-            
-            if (this.controls) {
-                this.controls.target.lerpVectors(this.startTarget, this.targetTarget, t);
-                this.controls.update();
+                this.camera.position.lerpVectors(this.startCameraPos, this.targetCameraPos, t);
+
+                if (this.controls) {
+                    this.controls.target.lerpVectors(this.startTarget, this.targetTarget, t);
+                }
             }
         }
 

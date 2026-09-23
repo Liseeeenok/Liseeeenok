@@ -14,8 +14,8 @@ export function getDesktopCameraFocus(object) {
     const panelRatio = getDesktopPanelWidth() / window.innerWidth;
 
     return {
-        distance: object.radius * 0.48,
-        targetOffset: object.radius * (0.35 + panelRatio * 0.75),
+        distance: object.radius * 0.45,
+        targetOffset: object.radius * (0.75 + panelRatio * 1.35),
         verticalLift: Math.max(object.radius * 0.06, 4)
     };
 }
