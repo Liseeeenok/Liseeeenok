@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { assetUrl } from '../utils/assetUrl.js';
-import { getDesktopCameraFocus, isCoarsePointer, isMobileViewport } from '../utils/viewport.js';
+import { computeDesktopFocusFrame, getFocusMinDistance, isCoarsePointer, isMobileViewport } from '../utils/viewport.js';
 
 export class InteractionManager {
     constructor(scene, camera, renderer, cameraManager = null) {
@@ -312,7 +312,7 @@ export class InteractionManager {
     applyFocusControlsConstraints(object) {
         if (!this.controls || !object) return;
 
-        this.controls.minDistance = Math.max(object.radius * 0.25, 5);
+        this.controls.minDistance = getFocusMinDistance(object);
         this.controls.maxDistance = Math.max(object.radius * 2.5, 250);
     }
 
@@ -326,7 +326,8 @@ export class InteractionManager {
     applyAnimationControlsConstraints(object = null) {
         if (!this.controls) return;
 
-        this.controls.minDistance = object ? Math.max(object.radius * 0.2, 4) : 4;
+        this.controls.enabled = false;
+        this.controls.minDistance = object ? Math.max(getFocusMinDistance(object) * 0.85, 4) : 4;
         this.controls.maxDistance = 12000;
         this.controls.enableDamping = false;
     }
@@ -338,6 +339,7 @@ export class InteractionManager {
 
         this.controls.target.copy(this.targetTarget);
         this.controls.enableDamping = true;
+        this.controls.enabled = true;
 
         if (this.selectedObject) {
             this.applyFocusControlsConstraints(this.selectedObject);
@@ -440,15 +442,10 @@ export class InteractionManager {
             this.startTarget.set(0, 0, 0);
         }
 
-        const approach = new THREE.Vector3().subVectors(objectPos, this.camera.position);
-        const forward = approach.length() > 0
-            ? approach.normalize()
-            : new THREE.Vector3(0, 0, -1);
-        const worldUp = new THREE.Vector3(0, 1, 0);
-
         if (mobile) {
             const verticalLift = Math.max(object.radius * 0.12, 10);
             const distance = Math.max(object.radius * 1.28, object.radius + 20) * 1.2;
+            const forward = new THREE.Vector3().subVectors(objectPos, this.startCameraPos).normalize();
 
             this.targetCameraPos.set(
                 objectPos.x - forward.x * distance,
@@ -457,17 +454,16 @@ export class InteractionManager {
             );
             this.targetTarget.copy(objectPos);
         } else {
-            const { distance, targetOffset, verticalLift } = getDesktopCameraFocus(object);
-
-            this.targetCameraPos.set(
-                objectPos.x - forward.x * distance,
-                objectPos.y - forward.y * distance + verticalLift,
-                objectPos.z - forward.z * distance
+            const frame = computeDesktopFocusFrame(
+                object,
+                this.camera,
+                objectPos,
+                this.startCameraPos,
+                this.startTarget
             );
 
-            this.viewDirection.subVectors(objectPos, this.targetCameraPos).normalize();
-            this.cameraRight.crossVectors(this.viewDirection, worldUp).normalize();
-            this.targetTarget.copy(objectPos).add(this.cameraRight.multiplyScalar(targetOffset));
+            this.targetCameraPos.copy(frame.targetCameraPos);
+            this.targetTarget.copy(frame.targetTarget);
         }
 
         this.isAnimatingToPlanet = true;
