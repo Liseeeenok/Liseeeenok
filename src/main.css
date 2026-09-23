@@ -309,15 +309,30 @@ canvas {
   transform: translateX(-50%) translateY(12px);
 }
 
-@media (max-width: 1024px) {
+@media (min-width: 768px) {
+  .portfolio-backdrop {
+    display: none !important;
+  }
+
   .portfolio-info-panel {
-    top: 64px;
-    right: 16px;
-    width: min(420px, calc(100vw - 32px));
-    min-width: 0;
-    max-width: calc(100vw - 32px);
-    height: calc(100vh - 80px);
-    padding: 20px 18px;
+    top: 72px;
+    right: 20px;
+    left: auto;
+    width: min(58vw, 920px);
+    min-width: 340px;
+    max-width: calc(100vw - 360px);
+    height: calc(100vh - 92px);
+    padding: 24px 28px;
+    border-radius: 16px;
+    transform: none !important;
+  }
+
+  .portfolio-info-panel.is-open {
+    transform: none !important;
+  }
+
+  .portfolio-info-panel__handle {
+    display: none !important;
   }
 }
 

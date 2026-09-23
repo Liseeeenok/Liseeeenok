@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { assetUrl } from '../utils/assetUrl.js';
-import { isCoarsePointer, isMobileViewport } from '../utils/viewport.js';
+import { getDesktopCameraFocus, isCoarsePointer, isMobileViewport } from '../utils/viewport.js';
 
 export class InteractionManager {
     constructor(scene, camera, renderer, cameraManager = null) {
@@ -162,6 +162,7 @@ export class InteractionManager {
         canvas.addEventListener('pointerleave', this.onPointerLeave.bind(this));
         canvas.addEventListener('pointerdown', this.onPointerDown.bind(this));
         canvas.addEventListener('pointerup', this.onPointerUp.bind(this));
+        canvas.addEventListener('click', this.onClick.bind(this));
     }
 
     updatePointerFromEvent(event) {
@@ -200,6 +201,10 @@ export class InteractionManager {
     }
 
     onPointerUp(event) {
+        if (event.pointerType === 'mouse') {
+            return;
+        }
+
         if (this.isAnimatingToPlanet) {
             return;
         }
@@ -217,6 +222,17 @@ export class InteractionManager {
         if (hitObject) {
             this.selectObject(hitObject);
             this.setMobileHintVisible(false);
+        }
+    }
+
+    onClick(event) {
+        if (this.isAnimatingToPlanet || isCoarsePointer()) {
+            return;
+        }
+
+        const hitObject = this.findObjectFromEvent(event);
+        if (hitObject) {
+            this.selectObject(hitObject);
         }
     }
 
@@ -369,29 +385,43 @@ export class InteractionManager {
 
     animateCameraToObject(object) {
         const objectPos = object.getPosition();
-        
+        const mobile = isMobileViewport();
+
         this.startCameraPos.copy(this.camera.position);
-        
+
         if (this.controls) {
             this.startTarget.copy(this.controls.target);
         } else {
             this.startTarget.set(0, 0, 0);
         }
 
-        const forward = new THREE.Vector3().subVectors(objectPos, this.startCameraPos).normalize();
+        const approach = new THREE.Vector3().subVectors(objectPos, this.camera.position);
+        const forward = approach.length() > 0
+            ? approach.normalize()
+            : new THREE.Vector3(0, 0, -1);
         const worldUp = new THREE.Vector3(0, 1, 0);
         const right = new THREE.Vector3().crossVectors(forward, worldUp).normalize();
-        const verticalLift = Math.max(object.radius * 0.12, 10);
-        const distanceMultiplier = isMobileViewport() ? 1.2 : 1;
-        const distance = Math.max(object.radius * 1.28, object.radius + 20) * distanceMultiplier;
 
-        this.targetCameraPos.set(
-            objectPos.x - forward.x * distance,
-            objectPos.y - forward.y * distance + verticalLift,
-            objectPos.z - forward.z * distance
-        );
+        if (mobile) {
+            const verticalLift = Math.max(object.radius * 0.12, 10);
+            const distance = Math.max(object.radius * 1.28, object.radius + 20) * 1.2;
 
-        this.targetTarget.copy(objectPos).add(right.multiplyScalar(object.radius * 1.5));
+            this.targetCameraPos.set(
+                objectPos.x - forward.x * distance,
+                objectPos.y - forward.y * distance + verticalLift,
+                objectPos.z - forward.z * distance
+            );
+            this.targetTarget.copy(objectPos);
+        } else {
+            const { distance, targetOffset, verticalLift } = getDesktopCameraFocus(object);
+
+            this.targetCameraPos.set(
+                objectPos.x - forward.x * distance,
+                objectPos.y - forward.y * distance + verticalLift,
+                objectPos.z - forward.z * distance
+            );
+            this.targetTarget.copy(objectPos).add(right.multiplyScalar(targetOffset));
+        }
 
         this.isAnimatingToPlanet = true;
         this.animationProgress = 0;
@@ -427,8 +457,13 @@ export class InteractionManager {
         }
 
         this.infoPanel.classList.add('is-open');
-        this.backdrop.classList.add('is-visible');
-        document.body.classList.add('panel-open');
+        if (isMobileViewport()) {
+            this.backdrop.classList.add('is-visible');
+            document.body.classList.add('panel-open');
+        } else {
+            this.backdrop.classList.remove('is-visible');
+            document.body.classList.remove('panel-open');
+        }
         this.setMobileHintVisible(false);
 
         const contentBody = this.infoPanel.querySelector('.portfolio-info-panel__body');
@@ -584,6 +619,13 @@ export class InteractionManager {
         this.useTouchInteraction = isCoarsePointer();
 
         if (this.infoPanel.classList.contains('is-open')) {
+            if (isMobileViewport()) {
+                this.backdrop.classList.add('is-visible');
+                document.body.classList.add('panel-open');
+            } else {
+                this.backdrop.classList.remove('is-visible');
+                document.body.classList.remove('panel-open');
+            }
             this.setMobileHintVisible(false);
         } else {
             this.setMobileHintVisible(isMobileViewport() || this.useTouchInteraction);
