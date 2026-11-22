@@ -580,3 +580,29 @@ canvas {
     display: none !important;
   }
 }
+
+/* Возврат с 3D-сцены к статическому профилю. */
+.back-to-profile {
+  position: fixed;
+  top: max(16px, env(safe-area-inset-top));
+  left: max(16px, env(safe-area-inset-left));
+  z-index: 3000;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(8, 12, 24, 0.82);
+  color: #dbeafe;
+  font-size: 13px;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  transition: background 0.16s ease, border-color 0.16s ease;
+}
+
+.back-to-profile:hover {
+  background: rgba(56, 189, 248, 0.24);
+  border-color: rgba(136, 204, 255, 0.45);
+  color: #fff;
+}
