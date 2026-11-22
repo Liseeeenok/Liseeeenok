@@ -682,9 +682,12 @@ export class InteractionManager {
             return this.contentCache.get(cacheKey);
         }
 
+        const buildId = typeof __BUILD_ID__ !== 'undefined' ? __BUILD_ID__ : '';
+        const cacheBust = buildId ? `?v=${buildId}` : '';
+
         const paths = [
-            assetUrl(`content/${this.currentLanguage}/${object.getContentKey()}/${type}.html`),
-            assetUrl(`content/${object.getContentKey()}/${type}.html`)
+            assetUrl(`content/${this.currentLanguage}/${object.getContentKey()}/${type}.html${cacheBust}`),
+            assetUrl(`content/${object.getContentKey()}/${type}.html${cacheBust}`)
         ];
 
         let markup = type === 'label'

@@ -3,6 +3,11 @@ import { resolve } from 'path';
 
 export default defineConfig({
     base: process.env.VITE_BASE_PATH || '/',
+    // Идентификатор сборки: подставляется в адреса контента панелей, чтобы браузер
+    // не показывал старое описание из кэша после обновления сайта.
+    define: {
+        __BUILD_ID__: JSON.stringify(Date.now().toString(36))
+    },
     server: {
         port: 3000,
         open: true
