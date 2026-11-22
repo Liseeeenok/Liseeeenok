@@ -130,9 +130,10 @@ ${content}
 
 function sceneBlock(lang, base) {
     const ui = UI[lang];
+    const nav = NAV[lang];
     return `<section class="scene-teaser">
     <div class="scene-teaser__text">
-        <h2>${esc(ui.scene)}</h2>
+        <h2>${esc(nav.scene)}</h2>
         <p>${esc(ui.sceneLead)}</p>
         <a class="scene-teaser__btn" href="${base}3d/">${esc(ui.openScene)}</a>
     </div>
