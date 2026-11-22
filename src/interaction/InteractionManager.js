@@ -284,8 +284,9 @@ export class InteractionManager {
     }
 
     rebuildOcclusionCache() {
+        // Солнце тоже перекрывает подписи: планета за его диском не должна подписываться.
         this.cachedOcclusionPlanets = this.interactiveObjects
-            .filter((object) => object.getContentKey() !== 'about-me' && object.getMesh())
+            .filter((object) => object.getMesh())
             .map((object) => ({
                 object,
                 radius: object.radius || 50
@@ -771,19 +772,24 @@ export class InteractionManager {
         return this.labelFrameCounter % 2 === 0;
     }
 
-    isOccludedByPlanet(object, objectCenter, objectDistance) {
+    /**
+     * Перекрыта ли точка лучом из камеры каким-либо телом сцены (Солнце, планета).
+     * Считаем по сфере радиуса тела: подпись, стоящая над планетой, тоже должна гаснуть,
+     * если планета ушла за диск Солнца или за соседнюю планету.
+     */
+    isPointOccluded(point, ignoredObject) {
         this.labelCameraPosition.copy(this.camera.position);
-        this.labelToObject.subVectors(objectCenter, this.labelCameraPosition);
-        const toObjectLength = this.labelToObject.length();
+        this.labelToObject.subVectors(point, this.labelCameraPosition);
+        const distanceToPoint = this.labelToObject.length();
 
-        if (toObjectLength === 0) {
+        if (distanceToPoint === 0) {
             return false;
         }
 
-        this.labelToObject.multiplyScalar(1 / toObjectLength);
+        this.labelToObject.multiplyScalar(1 / distanceToPoint);
 
         for (const { object: otherObject, radius } of this.cachedOcclusionPlanets) {
-            if (otherObject === object) {
+            if (otherObject === ignoredObject) {
                 continue;
             }
 
@@ -791,24 +797,32 @@ export class InteractionManager {
             this.labelToOther.subVectors(otherCenter, this.labelCameraPosition);
             const otherDistance = this.labelToOther.length();
 
-            if (otherDistance >= objectDistance) {
+            // Тело дальше самой точки ничего не перекрывает.
+            if (otherDistance >= distanceToPoint) {
                 continue;
             }
 
             const projection = this.labelToOther.dot(this.labelToObject);
-            if (projection <= 0 || projection >= objectDistance - object.radius * 0.25) {
+
+            if (projection <= 0) {
                 continue;
             }
 
             this.labelClosestPoint.copy(this.labelCameraPosition).addScaledVector(this.labelToObject, projection);
             const distToLine = otherCenter.distanceTo(this.labelClosestPoint);
 
-            if (distToLine < radius * 0.75) {
+            if (distToLine < radius * 0.95) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    hideObjectLabel(element) {
+        element.style.opacity = '0';
+        // Невидимая подпись не должна перехватывать клик по сцене.
+        element.style.pointerEvents = 'none';
     }
 
     updateObjectLabels() {
@@ -827,16 +841,19 @@ export class InteractionManager {
                 Math.abs(this.labelScreenPosition.y) <= 1.2;
 
             if (!isVisible) {
-                element.style.opacity = '0';
+                this.hideObjectLabel(element);
                 return;
             }
 
             this.labelObjectCenter.copy(object.getPosition());
-            const objectDistance = this.labelCameraPosition.copy(this.camera.position)
-                .distanceTo(this.labelObjectCenter);
 
-            if (this.isOccludedByPlanet(object, this.labelObjectCenter, objectDistance)) {
-                element.style.opacity = '0';
+            // Гасим подпись, если закрыт сам объект или точка, над которой она висит:
+            // иначе подпись остаётся висеть на диске Солнца, когда планета уже за ним.
+            if (
+                this.isPointOccluded(this.labelObjectCenter, object) ||
+                this.isPointOccluded(this.labelWorldPosition, object)
+            ) {
+                this.hideObjectLabel(element);
                 return;
             }
 
@@ -845,6 +862,7 @@ export class InteractionManager {
 
             element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
             element.style.opacity = object === this.selectedObject ? '0.35' : '1';
+            element.style.pointerEvents = '';
         });
     }
 
