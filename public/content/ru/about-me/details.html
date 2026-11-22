@@ -1,8 +1,25 @@
 <section class="portfolio-details">
     <h2>Ведерников Владислав Сергеевич</h2>
-    <figure class="portrait">
-        <img data-asset="content/photos/portrait.webp" alt="Владислав Ведерников, Иркутск">
-    </figure>
+    <div class="photo-slider" data-gallery>
+        <div class="photo-slider__track">
+            <figure class="photo-slider__slide">
+                <img data-asset="content/photos/portrait.webp" alt="Владислав Ведерников, Иркутск">
+            </figure>
+            <figure class="photo-slider__slide">
+                <img data-asset="content/photos/travel-2.webp" alt="У горного озера">
+            </figure>
+            <figure class="photo-slider__slide">
+                <img data-asset="content/photos/travel-1.webp" alt="В скалах">
+            </figure>
+        </div>
+        <button type="button" class="photo-slider__nav photo-slider__nav--prev" aria-label="Предыдущее фото">‹</button>
+        <button type="button" class="photo-slider__nav photo-slider__nav--next" aria-label="Следующее фото">›</button>
+        <div class="photo-slider__dots">
+                <button type="button" class="photo-slider__dot is-active" aria-label="Фото 1"></button>
+                <button type="button" class="photo-slider__dot" aria-label="Фото 2"></button>
+                <button type="button" class="photo-slider__dot" aria-label="Фото 3"></button>
+        </div>
+    </div>
 
     <div class="tag-list">
         <span class="tag">Иркутск</span>
@@ -77,14 +94,4 @@
     <div class="section-title">Вне работы</div>
     <p>Люблю дорогу и горы: если выпадает свободная неделя, скорее всего я где-то в поездке. Это же и лучший способ перезагрузить голову после долгого проекта.</p>
 
-    <div class="photo-grid">
-        <figure class="shot">
-            <img data-asset="content/photos/travel-2.webp" alt="У горного озера" loading="lazy">
-            <figcaption>У озера</figcaption>
-        </figure>
-        <figure class="shot">
-            <img data-asset="content/photos/travel-1.webp" alt="В скалах" loading="lazy">
-            <figcaption>В скалах</figcaption>
-        </figure>
-    </div>
 </section>

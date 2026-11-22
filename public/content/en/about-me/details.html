@@ -1,8 +1,25 @@
 <section class="portfolio-details">
     <h2>Vladislav Vedernikov</h2>
-    <figure class="portrait">
-        <img data-asset="content/photos/portrait.webp" alt="Vladislav Vedernikov, Irkutsk">
-    </figure>
+    <div class="photo-slider" data-gallery>
+        <div class="photo-slider__track">
+            <figure class="photo-slider__slide">
+                <img data-asset="content/photos/portrait.webp" alt="Vladislav Vedernikov, Irkutsk">
+            </figure>
+            <figure class="photo-slider__slide">
+                <img data-asset="content/photos/travel-2.webp" alt="At a mountain lake">
+            </figure>
+            <figure class="photo-slider__slide">
+                <img data-asset="content/photos/travel-1.webp" alt="Among the rocks">
+            </figure>
+        </div>
+        <button type="button" class="photo-slider__nav photo-slider__nav--prev" aria-label="Предыдущее фото">‹</button>
+        <button type="button" class="photo-slider__nav photo-slider__nav--next" aria-label="Следующее фото">›</button>
+        <div class="photo-slider__dots">
+                <button type="button" class="photo-slider__dot is-active" aria-label="Фото 1"></button>
+                <button type="button" class="photo-slider__dot" aria-label="Фото 2"></button>
+                <button type="button" class="photo-slider__dot" aria-label="Фото 3"></button>
+        </div>
+    </div>
 
     <div class="tag-list">
         <span class="tag">Irkutsk</span>
@@ -77,14 +94,4 @@
     <div class="section-title">Outside work</div>
     <p>I like roads and mountains: if I get a free week, I am most likely somewhere on a trip. It is also the best way to clear my head after a long project.</p>
 
-    <div class="photo-grid">
-        <figure class="shot">
-            <img data-asset="content/photos/travel-2.webp" alt="At a mountain lake" loading="lazy">
-            <figcaption>By the lake</figcaption>
-        </figure>
-        <figure class="shot">
-            <img data-asset="content/photos/travel-1.webp" alt="Among the rocks" loading="lazy">
-            <figcaption>Among the rocks</figcaption>
-        </figure>
-    </div>
 </section>

@@ -542,11 +542,120 @@ export class InteractionManager {
         container.querySelectorAll('img[data-asset]').forEach((img) => {
             img.src = assetUrl(img.dataset.asset);
             img.addEventListener('click', (event) => {
+                // После свайпа по карусели клик не должен открывать просмотр.
+                if (img.dataset.suppressZoom === '1') {
+                    return;
+                }
+
                 event.preventDefault();
                 event.stopPropagation();
                 this.openLightbox(img.src, img.alt);
             });
         });
+
+        container.querySelectorAll('[data-gallery]').forEach((gallery) => this.initPhotoGallery(gallery));
+    }
+
+    /**
+     * Карусель фотографий в профиле: стрелки, точки, свайп пальцем.
+     * Слайды лежат в треке и сдвигаются трансформом — без плагинов и скролла.
+     */
+    initPhotoGallery(gallery) {
+        const track = gallery.querySelector('.photo-slider__track');
+        const slides = Array.from(gallery.querySelectorAll('.photo-slider__slide'));
+        const dots = Array.from(gallery.querySelectorAll('.photo-slider__dot'));
+        const prevButton = gallery.querySelector('.photo-slider__nav--prev');
+        const nextButton = gallery.querySelector('.photo-slider__nav--next');
+
+        if (!track || slides.length < 2) {
+            return;
+        }
+
+        // Картинки не должны перетаскиваться: иначе на десктопе drag мышью
+        // запускает браузерное перетаскивание, а не листание.
+        gallery.querySelectorAll('img').forEach((img) => {
+            img.draggable = false;
+        });
+
+        let index = 0;
+
+        const render = () => {
+            track.style.transform = `translateX(-${index * 100}%)`;
+            dots.forEach((dot, dotIndex) => dot.classList.toggle('is-active', dotIndex === index));
+            slides.forEach((slide, slideIndex) => {
+                slide.setAttribute('aria-hidden', slideIndex === index ? 'false' : 'true');
+            });
+        };
+
+        const go = (step) => {
+            index = (index + step + slides.length) % slides.length;
+            render();
+        };
+
+        const stop = (event) => event.stopPropagation();
+
+        if (prevButton) {
+            prevButton.addEventListener('click', (event) => {
+                stop(event);
+                go(-1);
+            });
+        }
+
+        if (nextButton) {
+            nextButton.addEventListener('click', (event) => {
+                stop(event);
+                go(1);
+            });
+        }
+
+        dots.forEach((dot, dotIndex) => {
+            dot.addEventListener('click', (event) => {
+                stop(event);
+                index = dotIndex;
+                render();
+            });
+        });
+
+        // Свайп: порог 40 px, вертикальный жест отдаём прокрутке панели.
+        const threshold = 40;
+        let startX = 0;
+        let startY = 0;
+        let dragging = false;
+
+        track.addEventListener('pointerdown', (event) => {
+            if (event.pointerType === 'mouse' && event.button !== 0) return;
+            startX = event.clientX;
+            startY = event.clientY;
+            dragging = true;
+        });
+
+        track.addEventListener('pointerup', (event) => {
+            if (!dragging) return;
+            dragging = false;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            if (Math.abs(dx) <= threshold || Math.abs(dx) <= Math.abs(dy)) {
+                return;
+            }
+
+            go(dx < 0 ? 1 : -1);
+
+            // 350 мс после свайпа гасим открытие просмотра по клику.
+            gallery.querySelectorAll('img').forEach((img) => {
+                img.dataset.suppressZoom = '1';
+                setTimeout(() => {
+                    delete img.dataset.suppressZoom;
+                }, 350);
+            });
+        });
+
+        track.addEventListener('pointercancel', () => {
+            dragging = false;
+        });
+
+        render();
     }
 
     openLightbox(src, alt) {

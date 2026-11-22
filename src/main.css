@@ -140,26 +140,102 @@ canvas {
   cursor: zoom-in;
 }
 
-/* Галерея фотографий в профиле. */
-.portfolio-details .photo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 10px;
-  margin: 4px 0 8px;
+/* Галерея фотографий с листанием (профиль). */
+.portfolio-details .photo-slider {
+  position: relative;
+  margin: 0 0 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(136, 204, 255, 0.18);
+  background: rgba(8, 12, 24, 0.6);
 }
 
-.portfolio-details .photo-grid .shot {
+.portfolio-details .photo-slider__track {
+  display: flex;
+  transition: transform 0.35s ease;
+  touch-action: pan-y;
+}
+
+.portfolio-details .photo-slider__slide {
+  flex: 0 0 100%;
   margin: 0;
 }
 
-.portfolio-details .photo-grid img {
-  aspect-ratio: 3 / 4;
+.portfolio-details .photo-slider__slide img {
+  display: block;
+  width: 100%;
+  height: 420px;
   object-fit: cover;
+  object-position: 50% 50%;
+  cursor: zoom-in;
+  /* Без этого браузер на десктопе начинает перетаскивать картинку вместо свайпа. */
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Первый кадр — портрет: лицо держим в верхней части кропа. */
+.portfolio-details .photo-slider__slide:first-child img {
+  object-position: 50% 20%;
+}
+
+.portfolio-details .photo-slider__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 50%;
+  background: rgba(8, 14, 28, 0.72);
+  color: #f4f8ff;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.16s ease;
+}
+
+.portfolio-details .photo-slider__nav:hover {
+  background: rgba(56, 189, 248, 0.35);
+}
+
+.portfolio-details .photo-slider__nav--prev {
+  left: 10px;
+}
+
+.portfolio-details .photo-slider__nav--next {
+  right: 10px;
+}
+
+.portfolio-details .photo-slider__dots {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+}
+
+.portfolio-details .photo-slider__dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}
+
+.portfolio-details .photo-slider__dot.is-active {
+  background: #fff;
 }
 
 @media (max-width: 767px) {
-  .portfolio-details .portrait img {
-    max-height: 330px;
+  .portfolio-details .photo-slider__slide img {
+    height: 330px;
   }
 }
 
