@@ -1,0 +1,49 @@
+<section class="portfolio-details">
+  <h2>Менеджер конференций</h2>
+  <div class="tag-list">
+    <span class="tag">Laravel 13</span>
+    <span class="tag">Filament 5</span>
+    <span class="tag">PostgreSQL</span>
+    <span class="tag">Яндекс Формы</span>
+    <span class="tag">API</span>
+  </div>
+  <p>Система приёма и обработки заявок участников конференций и сборки программы по дням, секциям, аудиториям и времени выступлений.</p>
+  <div class="section-title">Проблема</div>
+  <p>Заявки приходили в формы и таблицы, программа собиралась вручную в документах, а участникам негде было посмотреть расписание.</p>
+  <div class="section-title">Моя роль</div>
+  <p>Разработчик и автор системы: модель данных, админка, публичная программа, выгрузки, интеграция с формами.</p>
+  <div class="section-title">Что сделано</div>
+  <ul>
+    <li>Приём заявок из Яндекс Форм по API: привязка к конференции, вложения в хранилище, защита от дублей при повторной отправке.</li>
+    <li>Админка Filament: заявки, конференции, секции, дни, аудитории, файлы, журнал импорта.</li>
+    <li>Программа по дням и секциям с распределением докладов и календарём по залам, где событие перетаскивается мышью.</li>
+    <li>Публичная страница программы по каждому мероприятию — без входа в систему.</li>
+    <li>Выгрузки: Excel, PDF и DOCX — программа и списки участников.</li>
+    <li>OpenAPI-описание и Swagger UI для интеграций.</li>
+  </ul>
+  <div class="section-title">Как устроено</div>
+  <p>Laravel 13 и Filament 5, PostgreSQL, файлы в Laravel Storage. Заявки приходят по вебхуку из Яндекс Форм, исходный payload сохраняется для диагностики. Выгрузки собираются на стороне сервера из шаблонов, публичная программа — отдельный Blade-контур с собственным оформлением.</p>
+  <div class="section-title">Результат</div>
+  <p>В системе живёт реальная конференция: 159 заявок, 156 докладов в программе, 5 дней и 6 секций. Администраторы собирают программу без ручных таблиц, участники видят её на публичной странице.</p>
+  <div class="section-title">Скриншоты</div>
+  <figure class="shot">
+    <img data-asset="content/shots/conference-manager/conf-home.webp" alt="Публичная программа конференции" loading="lazy">
+    <figcaption>Публичная программа конференции</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/conference-manager/cm-admin.webp" alt="Сводка по заявкам" loading="lazy">
+    <figcaption>Сводка по заявкам</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/conference-manager/cm-applications.webp" alt="Заявки участников" loading="lazy">
+    <figcaption>Заявки участников</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/conference-manager/cm-program.webp" alt="Программа по дням, залам и времени" loading="lazy">
+    <figcaption>Программа по дням, залам и времени</figcaption>
+  </figure>
+  <div class="section-title">Ограничения</div>
+  <p>Расписание завязано на конкретный формат мероприятия: параллельные потоки и сложные зависимости между докладами пока не описаны как отдельные сущности.</p>
+  <div class="section-title">Что улучшил бы сейчас</div>
+  <p>Добавил бы личный кабинет участника: сейчас правки заявки проходят через письмо организатору.</p>
+</section>

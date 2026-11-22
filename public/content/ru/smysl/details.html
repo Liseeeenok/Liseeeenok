@@ -1,0 +1,51 @@
+<section class="portfolio-details">
+  <h2>Смысл</h2>
+  <div class="tag-list">
+    <span class="tag">Laravel</span>
+    <span class="tag">Vue 3</span>
+    <span class="tag">PostgreSQL</span>
+    <span class="tag">Свой STT</span>
+    <span class="tag">DeepSeek</span>
+    <span class="tag">Android</span>
+  </div>
+  <p>Приложение, которое превращает мысль — сказанную голосом или набранную текстом — в заметки, задачи, подзадачи, события календаря и напоминания.</p>
+  <div class="section-title">Проблема</div>
+  <p>Обычные таск-трекеры требуют заполнять поля: проект, срок, приоритет. Из-за этого мысль, сказанная на ходу, так и остаётся в голове или в заметках без структуры.</p>
+  <div class="section-title">Моя роль</div>
+  <p>Единственный разработчик: продукт, backend, веб-клиент, мобильное приложение, распознавание речи, интеграции и публикация.</p>
+  <div class="section-title">Что сделано</div>
+  <ul>
+    <li>Ввод мысли голосом или текстом и автоматический разбор на сущности: заметки, задачи, подзадачи, события, напоминания.</li>
+    <li>Связи между заметками, теги, проекты, участники и уровни доступа — от личного до общего.</li>
+    <li>Календарь: месяц, неделя, день и список; задача со сроком сама получает событие.</li>
+    <li>Повторяющиеся задачи и напоминания, корзина с восстановлением.</li>
+    <li>Свой сервис распознавания речи: аудио не хранится, запись до 180 секунд.</li>
+    <li>Telegram-бот и MCP-подключение: задачи можно ставить голосом в мессенджере или поручать ИИ-агенту.</li>
+    <li>Мобильное приложение на Kotlin/Compose: тот же продукт, оформление один в один с веб-версией.</li>
+  </ul>
+  <div class="section-title">Как устроено</div>
+  <p>PHP 8.4 и Laravel 13, PostgreSQL, Redis для кеша и очередей, сессии в базе. Фронтенд — Vue 3 + Vue Router + Pinia, Vite, Tailwind CSS 4, SPA/PWA. Авторизация через Sanctum: cookie-сессия в браузере и токены в приложении. Распознавание речи — свой сервис на faster-whisper, разбор текста — DeepSeek. Есть OpenAPI-описание API и инструменты для ИИ-агентов по MCP.</p>
+  <div class="section-title">Результат</div>
+  <p>Рабочий продукт в проде (memo-flow.ru) и приложение для Android. 603 автотеста и линтер в CI: разбор ввода, повторения, напоминания и права доступа покрыты проверками.</p>
+  <div class="section-title">Скриншоты</div>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-tasks-dark.webp" alt="Задачи: сроки, приоритеты и описания" loading="lazy">
+    <figcaption>Задачи: сроки, приоритеты и описания</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-notes-dark.webp" alt="Заметки с текстом и датами" loading="lazy">
+    <figcaption>Заметки с текстом и датами</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-calendar-dark.webp" alt="Календарь: месяц, неделя, день и список" loading="lazy">
+    <figcaption>Календарь: месяц, неделя, день и список</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-input-dark.webp" alt="Ввод мысли голосом или текстом" loading="lazy">
+    <figcaption>Ввод мысли голосом или текстом</figcaption>
+  </figure>
+  <div class="section-title">Ограничения</div>
+  <p>Распознавание речи и разбор текста зависят от внешних моделей: при недоступности провайдера ввод остаётся черновиком и разбирается позже.</p>
+  <div class="section-title">Что улучшил бы сейчас</div>
+  <p>Добавил бы офлайн-очередь на мобильном: сейчас запись без сети приходится повторять.</p>
+</section>

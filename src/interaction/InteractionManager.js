@@ -526,7 +526,51 @@ export class InteractionManager {
 
         if (requestId === this.activeDetailsRequest && contentBody) {
             contentBody.innerHTML = detailsMarkup;
+            this.hydrateContent(contentBody);
             this.bindContentActions(contentBody);
+        }
+    }
+
+    /**
+     * Картинки в описаниях лежат относительно каталога контента и не знают про base path,
+     * поэтому путь из data-asset разворачивает assetUrl. Клик открывает снимок во весь экран.
+     */
+    hydrateContent(container) {
+        if (!container) return;
+
+        container.querySelectorAll('img[data-asset]').forEach((img) => {
+            img.src = assetUrl(img.dataset.asset);
+            img.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                this.openLightbox(img.src, img.alt);
+            });
+        });
+    }
+
+    openLightbox(src, alt) {
+        if (!this.lightbox) {
+            this.lightbox = document.createElement('div');
+            this.lightbox.className = 'portfolio-lightbox';
+            this.lightbox.innerHTML = '<img alt="">';
+            this.lightbox.addEventListener('click', () => this.closeLightbox());
+            document.body.appendChild(this.lightbox);
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    this.closeLightbox();
+                }
+            });
+        }
+
+        const image = this.lightbox.querySelector('img');
+        image.src = src;
+        image.alt = alt || '';
+        this.lightbox.classList.add('is-open');
+    }
+
+    closeLightbox() {
+        if (this.lightbox) {
+            this.lightbox.classList.remove('is-open');
         }
     }
 

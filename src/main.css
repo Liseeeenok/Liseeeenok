@@ -96,6 +96,57 @@ canvas {
   font-size: 13px;
 }
 
+.portfolio-details .shot {
+  margin: 0 0 16px;
+}
+
+.portfolio-details .shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(136, 204, 255, 0.18);
+  background: rgba(8, 12, 24, 0.6);
+  cursor: zoom-in;
+  transition: border-color 0.16s ease;
+}
+
+.portfolio-details .shot img:hover {
+  border-color: rgba(136, 204, 255, 0.45);
+}
+
+.portfolio-details .shot figcaption {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.portfolio-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(2, 6, 23, 0.92);
+  backdrop-filter: blur(4px);
+  cursor: zoom-out;
+}
+
+.portfolio-lightbox.is-open {
+  display: flex;
+}
+
+.portfolio-lightbox img {
+  max-width: 96vw;
+  max-height: 94vh;
+  border-radius: 12px;
+  border: 1px solid rgba(136, 204, 255, 0.25);
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+}
+
 .language-switcher {
   position: fixed;
   top: max(16px, env(safe-area-inset-top));

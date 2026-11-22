@@ -227,5 +227,32 @@ export const projectPlanets = [
         emissiveIntensity: 0.08,
         glowColor: 0xb0c7e4,
         surfaceType: 'dark'
+    },
+    {
+        name: 'Смысл',
+        shortLabel: 'Смысл',
+        contentKey: 'smysl',
+        radius: 23,
+        distance: 2862,
+        texturePath: texture('2k_neptune.jpg'),
+        color: 0x8f86e8,
+        emissive: 0x3b3470,
+        emissiveIntensity: 0.1,
+        glowColor: 0xc3bcff,
+        surfaceType: 'gas',
+        bandColors: ['#b8b2ee', '#8f86e8', '#6a61c4', '#d6d2ff']
+    },
+    {
+        name: 'Менеджер конференций',
+        shortLabel: 'Конференции',
+        contentKey: 'conference-manager',
+        radius: 21,
+        distance: 2935,
+        texturePath: texture('2k_earth_nightmap.jpg'),
+        color: 0x63c9b4,
+        emissive: 0x1f5a4f,
+        emissiveIntensity: 0.1,
+        glowColor: 0xa6efe2,
+        surfaceType: 'rocky'
     }
 ];

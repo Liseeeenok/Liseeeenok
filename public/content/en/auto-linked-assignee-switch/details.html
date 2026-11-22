@@ -1,13 +1,20 @@
 <section class="portfolio-details">
-    <h2>Auto-linked Assignee Switch</h2>
-    <p>Full description of the automatic assignee switch for linked entities: why it was needed, how it was implemented, and what impact it had.</p>
-
-    <div class="section-title">What to highlight</div>
-    <ul>
-        <li>Project context and goals.</li>
-        <li>My role and specific contribution.</li>
-        <li>Technologies, constraints, and results.</li>
-    </ul>
-
-    <p class="meta">Edit this file: <code>public/content/en/auto-linked-assignee-switch/details.html</code></p>
+  <h2>Automatic assignee switch in linked entities</h2>
+  <div class="tag-list">
+    <span class="tag">Fullstack</span>
+    <span class="tag">Bitrix24</span>
+  </div>
+  <p>A Bitrix24 module that switches the assignee across every linked entity at once.</p>
+  <div class="section-title">Problem</div>
+  <p>When a manager changed, some linked records stayed with the previous employee, and nobody could tell who owns the client now.</p>
+  <div class="section-title">My role</div>
+  <p>Fullstack developer: switch rules, link processing, interface.</p>
+  <div class="section-title">What I built</div>
+  <ul>
+    <li>Detecting an assignee change on an entity.</li>
+    <li>Automatically switching the assignee in all linked entities.</li>
+    <li>Keeping a change history so the origin of each edit is visible.</li>
+  </ul>
+  <div class="section-title">Outcome</div>
+  <p>A finished Bitrix24 module that tracks and switches assignees in linked entities.</p>
 </section>

@@ -1,13 +1,44 @@
 <section class="portfolio-details">
-    <h2>Datable</h2>
-    <p>Полное описание проекта Datable: продукт, ограничения, мой вклад и полученный эффект.</p>
-
-    <div class="section-title">Что можно показать</div>
-    <ul>
-        <li>Контекст проекта и его цель.</li>
-        <li>Мою роль и конкретный вклад.</li>
-        <li>Технологии, ограничения и результат.</li>
-    </ul>
-
-    <p class="meta">Файл для редактирования: <code>public/content/ru/datable/details.html</code></p>
+  <h2>Datable</h2>
+  <div class="tag-list">
+    <span class="tag">Laravel</span>
+    <span class="tag">Vue.js</span>
+    <span class="tag">PostgreSQL</span>
+    <span class="tag">MySQL</span>
+    <span class="tag">6 месяцев</span>
+  </div>
+  <p>Платформа, которая собирает несколько баз данных в одном интерфейсе: структура, данные, аналитика и карта геоданных.</p>
+  <div class="section-title">Проблема</div>
+  <p>Базы данных компании разбросаны по разным системам. Нужен один интерфейс, где видно структуру, можно смотреть данные, строить аналитику и отображать объекты на карте.</p>
+  <div class="section-title">Моя роль</div>
+  <p>Руководитель проекта и backend-разработчик: архитектура, подключение внешних баз, права доступа, API.</p>
+  <div class="section-title">Что сделано</div>
+  <ul>
+    <li>Подключение к удалённым базам PostgreSQL и MySQL со сканированием структуры.</li>
+    <li>Просмотр и редактирование таблиц и полей, настройка типов полей.</li>
+    <li>Разграничение уровней доступа и ролей: владелец, редактор, читатель.</li>
+    <li>Публичный API с полной документацией для работы с данными баз.</li>
+    <li>Слой геоданных: объекты на карте и загрузка GeoJSON.</li>
+  </ul>
+  <div class="section-title">Как устроено</div>
+  <p>Backend на Laravel с Eloquent-моделями, авторизация по Bearer-токену (Sanctum). Структура удалённых баз синхронизируется в фоне через очереди. Frontend — Vue.js, карта — MapLibre.</p>
+  <div class="section-title">Результат</div>
+  <p>Проект в работе: подключение к внешним базам, роли и уровни доступа уже работают на реальной базе института (83 таблицы, 668 полей).</p>
+  <div class="section-title">Скриншоты</div>
+  <figure class="shot">
+    <img data-asset="content/shots/datable/datable-db.webp" alt="База данных: список таблиц" loading="lazy">
+    <figcaption>База данных: список таблиц</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/datable/datable-table.webp" alt="Таблица: данные и фильтры" loading="lazy">
+    <figcaption>Таблица: данные и фильтры</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/datable/datable-field.webp" alt="Поле таблицы: настройка типа" loading="lazy">
+    <figcaption>Поле таблицы: настройка типа</figcaption>
+  </figure>
+  <div class="section-title">Ограничения</div>
+  <p>Интерфейс пока сырой: часть экранов сделана для проверки логики, а не для удобной работы.</p>
+  <div class="section-title">Что улучшил бы сейчас</div>
+  <p>Довёл бы UI до нормального состояния: сейчас им неудобно пользоваться без подсказки.</p>
 </section>

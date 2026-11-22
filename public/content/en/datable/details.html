@@ -1,13 +1,44 @@
 <section class="portfolio-details">
-    <h2>Datable</h2>
-    <p>Full Datable project description: product, constraints, my contribution, and impact.</p>
-
-    <div class="section-title">What to highlight</div>
-    <ul>
-        <li>Project context and goals.</li>
-        <li>My role and specific contribution.</li>
-        <li>Technologies, constraints, and results.</li>
-    </ul>
-
-    <p class="meta">Edit this file: <code>public/content/en/datable/details.html</code></p>
+  <h2>Datable</h2>
+  <div class="tag-list">
+    <span class="tag">Laravel</span>
+    <span class="tag">Vue.js</span>
+    <span class="tag">PostgreSQL</span>
+    <span class="tag">MySQL</span>
+    <span class="tag">6 months</span>
+  </div>
+  <p>A platform that brings several databases into one interface: structure, data, analytics and a map of geodata.</p>
+  <div class="section-title">Problem</div>
+  <p>Company databases live in different systems. One interface is needed to inspect structure, browse data, run analytics and show objects on a map.</p>
+  <div class="section-title">My role</div>
+  <p>Project lead and backend developer: architecture, remote database connections, access control, API.</p>
+  <div class="section-title">What I built</div>
+  <ul>
+    <li>Connections to remote PostgreSQL and MySQL databases with structure scanning.</li>
+    <li>Browsing and editing tables and fields, configuring field types.</li>
+    <li>Access levels and roles: owner, editor, reader.</li>
+    <li>A public API with full documentation for working with database data.</li>
+    <li>A geodata layer: objects on the map and GeoJSON upload.</li>
+  </ul>
+  <div class="section-title">How it works</div>
+  <p>Laravel backend with Eloquent models and Bearer-token auth (Sanctum). Remote database structure is synced in the background through queues. The frontend is Vue.js, the map is MapLibre.</p>
+  <div class="section-title">Outcome</div>
+  <p>Work in progress: remote connections, roles and access levels already run on a real institute database (83 tables, 668 fields).</p>
+  <div class="section-title">Screenshots</div>
+  <figure class="shot">
+    <img data-asset="content/shots/datable/datable-db.webp" alt="База данных: список таблиц" loading="lazy">
+    <figcaption>База данных: список таблиц</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/datable/datable-table.webp" alt="Таблица: данные и фильтры" loading="lazy">
+    <figcaption>Таблица: данные и фильтры</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/datable/datable-field.webp" alt="Поле таблицы: настройка типа" loading="lazy">
+    <figcaption>Поле таблицы: настройка типа</figcaption>
+  </figure>
+  <div class="section-title">Constraints</div>
+  <p>The interface is still rough: some screens were built to prove the logic rather than for comfortable daily use.</p>
+  <div class="section-title">What I would improve today</div>
+  <p>I would finish the UI — today it needs a walkthrough before anyone can use it.</p>
 </section>

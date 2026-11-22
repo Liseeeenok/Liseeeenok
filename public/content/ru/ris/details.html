@@ -1,13 +1,46 @@
 <section class="portfolio-details">
-    <h2>RIS</h2>
-    <p>Полное описание проекта RIS: контекст, задачи, моя роль, технические решения и результат.</p>
-
-    <div class="section-title">Что можно показать</div>
-    <ul>
-        <li>Контекст проекта и его цель.</li>
-        <li>Мою роль и конкретный вклад.</li>
-        <li>Технологии, ограничения и результат.</li>
-    </ul>
-
-    <p class="meta">Файл для редактирования: <code>public/content/ru/ris/details.html</code></p>
+  <h2>RIS</h2>
+  <div class="tag-list">
+    <span class="tag">Frontend</span>
+    <span class="tag">October CMS</span>
+    <span class="tag">Node.js</span>
+    <span class="tag">4 года</span>
+  </div>
+  <p>Система учёта научных публикаций и достижений сотрудников ИДСТУ СО РАН: работы, проекты, отчёты и сопровождающие документы.</p>
+  <div class="section-title">Проблема</div>
+  <p>Учёт научных достижений и работ института вёлся вручную, а подготовка сопровождающих документов и годового отчёта занимала недели.</p>
+  <div class="section-title">Моя роль</div>
+  <p>Frontend-разработчик: интерфейсы, новые разделы и профиль сотрудника. Дополнительно — сбор и согласование доработок с сотрудниками института.</p>
+  <div class="section-title">Что сделано</div>
+  <ul>
+    <li>Переработал интерфейсы и добавил новые вкладки в существующую систему.</li>
+    <li>Сделал личную страницу сотрудника с его работами, проектами и достижениями.</li>
+    <li>Добавил аналитику по работам и фильтры для поиска публикаций.</li>
+    <li>Подключил автоматическое формирование авторских справок и других документов.</li>
+  </ul>
+  <div class="section-title">Как устроено</div>
+  <p>Основа — October CMS на базе Laravel, расширения живут в плагинах. Документы формирует отдельный сервис на Node.js: он получает данные из системы и отдаёт готовые файлы.</p>
+  <div class="section-title">Результат</div>
+  <p>Подготовка сопровождающих документов ускорилась примерно в 3 раза, сборка годового отчёта — в 5 раз. Проверка — живой работой сотрудников института.</p>
+  <div class="section-title">Скриншоты</div>
+  <figure class="shot">
+    <img data-asset="content/shots/ris/ris-home.webp" alt="Главная страница системы" loading="lazy">
+    <figcaption>Главная страница системы</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/ris/ris-author2.webp" alt="Научный профиль сотрудника" loading="lazy">
+    <figcaption>Научный профиль сотрудника</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/ris/ris-search.webp" alt="Поиск по публикациям" loading="lazy">
+    <figcaption>Поиск по публикациям</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/ris/ris-structure.webp" alt="Структура института" loading="lazy">
+    <figcaption>Структура института</figcaption>
+  </figure>
+  <div class="section-title">Ограничения</div>
+  <p>Проект старый: его запускал ушедший разработчик на устаревшей версии October CMS, поэтому любые изменения приходится делать с оглядкой на легаси.</p>
+  <div class="section-title">Что улучшил бы сейчас</div>
+  <p>Оптимизировал бы генерацию отчётов за прошлые годы и переработал профили сотрудников: сейчас они перегружены данными.</p>
 </section>

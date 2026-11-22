@@ -1,0 +1,51 @@
+<section class="portfolio-details">
+  <h2>Smysl</h2>
+  <div class="tag-list">
+    <span class="tag">Laravel</span>
+    <span class="tag">Vue 3</span>
+    <span class="tag">PostgreSQL</span>
+    <span class="tag">Own STT</span>
+    <span class="tag">DeepSeek</span>
+    <span class="tag">Android</span>
+  </div>
+  <p>An app that turns a thought — spoken or typed — into notes, tasks, subtasks, calendar events and reminders.</p>
+  <div class="section-title">Problem</div>
+  <p>Ordinary task trackers make you fill in fields: project, due date, priority. A thought caught on the move therefore never becomes a structured task.</p>
+  <div class="section-title">My role</div>
+  <p>Sole developer: product, backend, web client, mobile app, speech recognition, integrations and deployment.</p>
+  <div class="section-title">What I built</div>
+  <ul>
+    <li>Voice or text input parsed automatically into entities: notes, tasks, subtasks, events and reminders.</li>
+    <li>Links between notes, tags, projects, participants and access levels from private to shared.</li>
+    <li>A calendar with month, week, day and list views; a task with a due date gets its event automatically.</li>
+    <li>Recurring tasks and reminders, plus a recycle bin with restore.</li>
+    <li>An in-house speech recognition service: audio is not stored, clips up to 180 seconds.</li>
+    <li>A Telegram bot and MCP connection: tasks by voice in a messenger, or handed to an AI agent.</li>
+    <li>A Kotlin/Compose Android app that mirrors the web product pixel for pixel.</li>
+  </ul>
+  <div class="section-title">How it works</div>
+  <p>PHP 8.4 and Laravel 13, PostgreSQL, Redis for cache and queues, sessions in the database. The frontend is Vue 3 with Vue Router and Pinia, Vite, Tailwind CSS 4, as a SPA/PWA. Auth runs through Sanctum: cookie session in the browser, tokens in the app. Speech is recognised by an in-house faster-whisper service, text is parsed by DeepSeek. The API has an OpenAPI spec and MCP tools for AI agents.</p>
+  <div class="section-title">Outcome</div>
+  <p>A working product in production (memo-flow.ru) and an Android app. 603 automated tests plus a linter in CI cover input parsing, recurrence, reminders and access rules.</p>
+  <div class="section-title">Screenshots</div>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-tasks-dark.webp" alt="Задачи: сроки, приоритеты и описания" loading="lazy">
+    <figcaption>Задачи: сроки, приоритеты и описания</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-notes-dark.webp" alt="Заметки с текстом и датами" loading="lazy">
+    <figcaption>Заметки с текстом и датами</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-calendar-dark.webp" alt="Календарь: месяц, неделя, день и список" loading="lazy">
+    <figcaption>Календарь: месяц, неделя, день и список</figcaption>
+  </figure>
+  <figure class="shot">
+    <img data-asset="content/shots/smysl/flow-input-dark.webp" alt="Ввод мысли голосом или текстом" loading="lazy">
+    <figcaption>Ввод мысли голосом или текстом</figcaption>
+  </figure>
+  <div class="section-title">Constraints</div>
+  <p>Speech recognition and text parsing depend on external models: when a provider is down the input stays a draft and is parsed later.</p>
+  <div class="section-title">What I would improve today</div>
+  <p>I would add an offline queue on mobile — today a recording without network has to be repeated.</p>
+</section>
