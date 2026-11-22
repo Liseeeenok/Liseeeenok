@@ -4,17 +4,18 @@
     <span class="tag">Fullstack</span>
     <span class="tag">Bitrix24</span>
   </div>
-  <p>A Bitrix24 module that switches the assignee across every linked entity at once.</p>
-  <div class="section-title">Problem</div>
-  <p>When a manager changed, some linked records stayed with the previous employee, and nobody could tell who owns the client now.</p>
+  <p>A Bitrix24 module: when the assignee changes, it changes across every linked entity — deal, contact, task and request stay with one employee.</p>
+  <div class="section-title">The task</div>
+  <p>When a manager changed, some linked records stayed with the previous employee. The client ended up orphaned: tasks hung on someone who had left, calls went to the wrong person, and six months later nobody could find where it broke.</p>
   <div class="section-title">My role</div>
-  <p>Fullstack developer: switch rules, link processing, interface.</p>
+  <p>Fullstack developer: switch rules, link traversal, change history.</p>
   <div class="section-title">What I built</div>
   <ul>
-    <li>Detecting an assignee change on an entity.</li>
-    <li>Automatically switching the assignee in all linked entities.</li>
-    <li>Keeping a change history so the origin of each edit is visible.</li>
+    <li>Detecting an assignee change on a CRM entity.</li>
+    <li>Automatically walking linked entities by configured rules.</li>
+    <li>Guarding against repeated processing and cycles in the links.</li>
+    <li>A change history showing where an edit came from and who started it.</li>
   </ul>
   <div class="section-title">Outcome</div>
-  <p>A finished Bitrix24 module that tracks and switches assignees in linked entities.</p>
+  <p>Relations hold: when a manager changes, the records move together with the client.</p>
 </section>

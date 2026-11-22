@@ -4,17 +4,19 @@
     <span class="tag">Fullstack</span>
     <span class="tag">Bitrix24</span>
   </div>
-  <p>A module that moves data from one Bitrix24 portal to another while keeping the links between records.</p>
-  <div class="section-title">Problem</div>
-  <p>Moving to a new portal had to keep everything — reference data, deals, tasks, files and relations between them — instead of copying by hand.</p>
+  <p>A module that moves data between Bitrix24 portals: entities, links, files and employees.</p>
+  <div class="section-title">The task</div>
+  <p>Moving to a new portal is usually done by hand: export the reference data, recreate deals and tasks, lose relations and attachments. On a large portal that is weeks of work and guaranteed mismatches between the two systems.</p>
   <div class="section-title">My role</div>
-  <p>Fullstack developer: portal structure analysis, entity and relation migration.</p>
+  <p>Fullstack developer: portal structure analysis, entity and relation migration, repeatable runs.</p>
   <div class="section-title">What I built</div>
   <ul>
-    <li>Exporting entities from the source portal and importing them into the target.</li>
-    <li>Preserving links between records and file attachments.</li>
-    <li>Migrating employees and their roles.</li>
+    <li>Reading source entities page by page — no failures on volume.</li>
+    <li>Transferring into the target portal while keeping relations between records.</li>
+    <li>Migrating files and employees together with their roles.</li>
+    <li>Mapping old to new identifiers so a repeated run creates no duplicates.</li>
+    <li>A migration report: what moved, what was skipped and why.</li>
   </ul>
   <div class="section-title">Outcome</div>
-  <p>A finished module that fully transfers a portal's data — records, links, files and employees — to another portal.</p>
+  <p>Records, relations, files and employees move completely, and re-running the migration is safe.</p>
 </section>

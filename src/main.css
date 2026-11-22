@@ -122,6 +122,47 @@ canvas {
   line-height: 1.4;
 }
 
+/* Портрет в профиле: карточка сверху, лицо остаётся в кадре при любой ширине. */
+.portfolio-details .portrait {
+  margin: 0 0 16px;
+}
+
+.portfolio-details .portrait img {
+  display: block;
+  width: 100%;
+  max-height: 430px;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 22%;
+  border-radius: 16px;
+  border: 1px solid rgba(136, 204, 255, 0.18);
+  background: rgba(8, 12, 24, 0.6);
+  cursor: zoom-in;
+}
+
+/* Галерея фотографий в профиле. */
+.portfolio-details .photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin: 4px 0 8px;
+}
+
+.portfolio-details .photo-grid .shot {
+  margin: 0;
+}
+
+.portfolio-details .photo-grid img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+
+@media (max-width: 767px) {
+  .portfolio-details .portrait img {
+    max-height: 330px;
+  }
+}
+
 .portfolio-lightbox {
   position: fixed;
   inset: 0;

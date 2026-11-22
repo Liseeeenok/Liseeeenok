@@ -8,25 +8,25 @@
     <span class="tag">DeepSeek</span>
     <span class="tag">Android</span>
   </div>
-  <p>An app that turns a thought — spoken or typed — into notes, tasks, subtasks, calendar events and reminders.</p>
-  <div class="section-title">Problem</div>
-  <p>Ordinary task trackers make you fill in fields: project, due date, priority. A thought caught on the move therefore never becomes a structured task.</p>
+  <p>An app that turns a thought — spoken or typed — into notes, tasks, subtasks, calendar events and reminders. A web version and an Android app; I build all of it.</p>
+  <div class="section-title">The task</div>
+  <p>Ordinary task trackers ask you to fill in fields: project, due date, priority, assignee. A thought caught on the move therefore stays in your head or in an unstructured note — sorting it out later is separate work that usually never happens.</p>
   <div class="section-title">My role</div>
-  <p>Sole developer: product, backend, web client, mobile app, speech recognition, integrations and deployment.</p>
+  <p>Sole developer of the product: product logic, backend, web client, mobile app, speech recognition, integrations and deployment.</p>
   <div class="section-title">What I built</div>
   <ul>
-    <li>Voice or text input parsed automatically into entities: notes, tasks, subtasks, events and reminders.</li>
-    <li>Links between notes, tags, projects, participants and access levels from private to shared.</li>
+    <li>Voice or text input parsed automatically into entities: notes, tasks, subtasks, events, reminders.</li>
+    <li>Links between notes, tags and projects; participants and access levels from private to shared.</li>
     <li>A calendar with month, week, day and list views; a task with a due date gets its event automatically.</li>
     <li>Recurring tasks and reminders, plus a recycle bin with restore.</li>
-    <li>An in-house speech recognition service: audio is not stored, clips up to 180 seconds.</li>
-    <li>A Telegram bot and MCP connection: tasks by voice in a messenger, or handed to an AI agent.</li>
-    <li>A Kotlin/Compose Android app that mirrors the web product pixel for pixel.</li>
+    <li>An in-house speech service on faster-whisper: audio is not stored, clips up to three minutes.</li>
+    <li>A Telegram bot and an MCP connection: dictate a task in a messenger or hand it to an AI agent.</li>
+    <li>A Kotlin/Compose Android app that mirrors the web product's design.</li>
   </ul>
   <div class="section-title">How it works</div>
-  <p>PHP 8.4 and Laravel 13, PostgreSQL, Redis for cache and queues, sessions in the database. The frontend is Vue 3 with Vue Router and Pinia, Vite, Tailwind CSS 4, as a SPA/PWA. Auth runs through Sanctum: cookie session in the browser, tokens in the app. Speech is recognised by an in-house faster-whisper service, text is parsed by DeepSeek. The API has an OpenAPI spec and MCP tools for AI agents.</p>
+  <p>PHP 8.4 and Laravel 13, PostgreSQL, Redis for cache and queues, sessions in the database. Frontend: Vue 3 with Vue Router and Pinia, Vite, Tailwind CSS 4, as a SPA/PWA. Auth through Sanctum — cookie session in the browser, tokens in the app. Speech is recognised by an in-house service, text is parsed by DeepSeek. The API has an OpenAPI spec and MCP tools for AI agents.</p>
   <div class="section-title">Outcome</div>
-  <p>A working product in production (memo-flow.ru) and an Android app. 603 automated tests plus a linter in CI cover input parsing, recurrence, reminders and access rules.</p>
+  <p>The product runs in production (memo-flow.ru) and as an Android app. 603 automated tests plus a linter in CI cover input parsing, recurrence, reminders and access rules — I run this product alone, and without tests that would be too expensive.</p>
   <div class="section-title">Screenshots</div>
   <figure class="shot">
     <img data-asset="content/shots/smysl/flow-tasks-dark.webp" alt="Задачи: сроки, приоритеты и описания" loading="lazy">
@@ -45,7 +45,7 @@
     <figcaption>Ввод мысли голосом или текстом</figcaption>
   </figure>
   <div class="section-title">Constraints</div>
-  <p>Speech recognition and text parsing depend on external models: when a provider is down the input stays a draft and is parsed later.</p>
-  <div class="section-title">What I would improve today</div>
-  <p>I would add an offline queue on mobile — today a recording without network has to be repeated.</p>
+  <p>Parsing depends on external models: when a provider is unavailable the input stays a draft and is parsed later.</p>
+  <div class="section-title">What I would improve</div>
+  <p>I would add an offline queue to the mobile app — today a recording without network has to be repeated by hand.</p>
 </section>

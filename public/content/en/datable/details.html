@@ -7,23 +7,24 @@
     <span class="tag">MySQL</span>
     <span class="tag">6 months</span>
   </div>
-  <p>A platform that brings several databases into one interface: structure, data, analytics and a map of geodata.</p>
-  <div class="section-title">Problem</div>
-  <p>Company databases live in different systems. One interface is needed to inspect structure, browse data, run analytics and show objects on a map.</p>
+  <p>A platform that brings several databases into one interface: structure, data, analytics and a map of geodata. I led the project and wrote the backend — from the data model to remote database connections.</p>
+  <div class="section-title">The task</div>
+  <p>Company databases are scattered across systems and teams: seeing the structure needs server access, counting figures means exporting to Excel. One tool was needed where structure, data, relations between tables and the geography of objects are visible together.</p>
   <div class="section-title">My role</div>
-  <p>Project lead and backend developer: architecture, remote database connections, access control, API.</p>
+  <p>Project lead and backend developer: designed the model, built remote database connections, access control and the API. The frontend was built with the team.</p>
   <div class="section-title">What I built</div>
   <ul>
-    <li>Connections to remote PostgreSQL and MySQL databases with structure scanning.</li>
-    <li>Browsing and editing tables and fields, configuring field types.</li>
-    <li>Access levels and roles: owner, editor, reader.</li>
-    <li>A public API with full documentation for working with database data.</li>
-    <li>A geodata layer: objects on the map and GeoJSON upload.</li>
+    <li>Connections to remote PostgreSQL and MySQL: reading structure, tables and fields.</li>
+    <li>Browsing and editing tables and fields, configuring field types for the data.</li>
+    <li>Access levels and roles: owner, editor, reader — per database and per table.</li>
+    <li>Background synchronisation of remote structures without blocking the interface.</li>
+    <li>A documented public API so other systems can pull the data.</li>
+    <li>A geodata layer: objects on a map, GeoJSON upload, binding to tables.</li>
   </ul>
   <div class="section-title">How it works</div>
-  <p>Laravel backend with Eloquent models and Bearer-token auth (Sanctum). Remote database structure is synced in the background through queues. The frontend is Vue.js, the map is MapLibre.</p>
+  <p>Laravel backend with Eloquent and Bearer-token auth via Sanctum. Remote structures sync through queues so heavy reads never hang a request. The frontend is Vue.js, the map is MapLibre.</p>
   <div class="section-title">Outcome</div>
-  <p>Work in progress: remote connections, roles and access levels already run on a real institute database (83 tables, 668 fields).</p>
+  <p>The platform runs on a real institute database — 83 tables and 668 fields: structure and data are visible without server access, and permissions are enforced.</p>
   <div class="section-title">Screenshots</div>
   <figure class="shot">
     <img data-asset="content/shots/datable/datable-db.webp" alt="База данных: список таблиц" loading="lazy">
@@ -38,7 +39,7 @@
     <figcaption>Поле таблицы: настройка типа</figcaption>
   </figure>
   <div class="section-title">Constraints</div>
-  <p>The interface is still rough: some screens were built to prove the logic rather than for comfortable daily use.</p>
-  <div class="section-title">What I would improve today</div>
-  <p>I would finish the UI — today it needs a walkthrough before anyone can use it.</p>
+  <p>The interface is not finished: some screens were built to prove the logic rather than for daily work.</p>
+  <div class="section-title">What I would improve</div>
+  <p>I would finish the UI and add saved table views — today the view has to be configured again on every visit.</p>
 </section>

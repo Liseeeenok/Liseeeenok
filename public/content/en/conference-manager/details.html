@@ -8,23 +8,23 @@
     <span class="tag">API</span>
   </div>
   <p>A system for accepting and processing conference applications and assembling the programme by day, section, room and talk time.</p>
-  <div class="section-title">Problem</div>
-  <p>Applications lived in forms and spreadsheets, the programme was assembled by hand in documents, and attendees had nowhere to see the schedule.</p>
+  <div class="section-title">The task</div>
+  <p>Applications arrive through Yandex Forms, the programme is assembled by hand in documents, and attendees have nowhere to read it. Every edit creates a new file version and nobody knows which one is current.</p>
   <div class="section-title">My role</div>
   <p>Developer and author of the system: data model, admin panel, public programme, exports, forms integration.</p>
   <div class="section-title">What I built</div>
   <ul>
     <li>Accepting applications from Yandex Forms via API: binding to the conference, attachments in storage, deduplication on resubmission.</li>
-    <li>A Filament admin panel: applications, conferences, sections, days, rooms, files, import log.</li>
+    <li>An admin panel: applications, conferences, sections, days, rooms, files and the import log.</li>
     <li>A programme by day and section with talk placement and a per-room calendar where events are dragged with the mouse.</li>
-    <li>A public programme page for every event, available without signing in.</li>
+    <li>A public programme page for every event — no sign-in required.</li>
     <li>Exports to Excel, PDF and DOCX: the programme and participant lists.</li>
     <li>An OpenAPI spec and Swagger UI for integrations.</li>
   </ul>
   <div class="section-title">How it works</div>
   <p>Laravel 13 with Filament 5 and PostgreSQL, files in Laravel Storage. Applications arrive through a webhook from Yandex Forms and the raw payload is kept for diagnostics. Exports are rendered server-side from templates; the public programme is a separate Blade surface with its own styling.</p>
   <div class="section-title">Outcome</div>
-  <p>A real conference runs on it: 159 applications, 156 talks in the programme, 5 days and 6 sections. Administrators assemble the programme without manual spreadsheets and attendees read it on the public page.</p>
+  <p>A real conference runs on it: 159 applications, 156 talks, 5 days and 6 sections. The programme is assembled in the admin panel without manual spreadsheets, and attendees read it on the public page.</p>
   <div class="section-title">Screenshots</div>
   <figure class="shot">
     <img data-asset="content/shots/conference-manager/conf-home.webp" alt="Публичная программа конференции" loading="lazy">
@@ -44,6 +44,6 @@
   </figure>
   <div class="section-title">Constraints</div>
   <p>The schedule is tied to one event format: parallel tracks and dependencies between talks are not modelled as separate entities yet.</p>
-  <div class="section-title">What I would improve today</div>
+  <div class="section-title">What I would improve</div>
   <p>I would add a participant account — today an application is changed by writing to the organiser.</p>
 </section>
