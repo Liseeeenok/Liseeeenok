@@ -35,6 +35,7 @@ jobs:
         run: npm run build
         env:
           VITE_BASE_PATH: /Liseeeenok/
+          SITE_URL: https://liseeeenok.github.io/Liseeeenok
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -6,6 +6,7 @@ export const projectPlanets = [
     {
         name: 'RIS',
         shortLabel: 'RIS',
+        shortLabelEn: 'RIS',
         contentKey: 'ris',
         radius: 80,
         distance: 1441,
@@ -20,6 +21,7 @@ export const projectPlanets = [
     {
         name: 'Datable',
         shortLabel: 'Datable',
+        shortLabelEn: 'Datable',
         contentKey: 'datable',
         radius: 75,
         distance: 1592,
@@ -34,6 +36,7 @@ export const projectPlanets = [
     {
         name: 'КИПУ - Геймификация',
         shortLabel: 'КИПУ',
+        shortLabelEn: 'KIPU',
         contentKey: 'kipu-gamification',
         radius: 70,
         distance: 1108,
@@ -48,6 +51,7 @@ export const projectPlanets = [
     {
         name: 'История изменений CRM',
         shortLabel: 'История CRM',
+        shortLabelEn: 'CRM history',
         contentKey: 'crm-change-history',
         radius: 66,
         distance: 1281,
@@ -62,6 +66,7 @@ export const projectPlanets = [
     {
         name: 'Миграция порталов Битрикс24',
         shortLabel: 'Битрикс24',
+        shortLabelEn: 'Bitrix24',
         contentKey: 'bitrix24-portal-migration',
         radius: 59,
         distance: 721,
@@ -75,6 +80,7 @@ export const projectPlanets = [
     {
         name: 'IRTRAN',
         shortLabel: 'IRTRAN',
+        shortLabelEn: 'IRTRAN',
         contentKey: 'irtran',
         radius: 54,
         distance: 921,
@@ -88,6 +94,7 @@ export const projectPlanets = [
     {
         name: 'SKOS',
         shortLabel: 'SKOS',
+        shortLabelEn: 'SKOS',
         contentKey: 'skos',
         radius: 50,
         distance: 1735,
@@ -101,6 +108,7 @@ export const projectPlanets = [
     {
         name: 'Автоматическая смена ответственных в привязанных сущностях',
         shortLabel: 'Смена ответственных',
+        shortLabelEn: 'Assignee switch',
         contentKey: 'auto-linked-assignee-switch',
         radius: 46,
         distance: 1868,
@@ -114,6 +122,7 @@ export const projectPlanets = [
     {
         name: 'Бот для СОД',
         shortLabel: 'Бот СОД',
+        shortLabelEn: 'SOD bot',
         contentKey: 'sod-bot',
         radius: 43,
         distance: 1992,
@@ -127,6 +136,7 @@ export const projectPlanets = [
     {
         name: 'Компании, контакты, лиды на карте',
         shortLabel: 'Карта CRM',
+        shortLabelEn: 'CRM map',
         contentKey: 'companies-contacts-leads-map',
         radius: 40,
         distance: 2108,
@@ -140,6 +150,7 @@ export const projectPlanets = [
     {
         name: 'Личный кабинет Нотификат',
         shortLabel: 'Нотификат',
+        shortLabelEn: 'Notificat',
         contentKey: 'notificat-personal-cabinet',
         radius: 37,
         distance: 2219,
@@ -153,6 +164,7 @@ export const projectPlanets = [
     {
         name: 'Контур.Закупки - Интеграция',
         shortLabel: 'Контур.Закупки',
+        shortLabelEn: 'Kontur',
         contentKey: 'kontur-zakupki-integration',
         radius: 35,
         distance: 2323,
@@ -166,6 +178,7 @@ export const projectPlanets = [
     {
         name: 'Занятость залов',
         shortLabel: 'Залы',
+        shortLabelEn: 'Halls',
         contentKey: 'hall-occupancy',
         radius: 33,
         distance: 2423,
@@ -179,6 +192,7 @@ export const projectPlanets = [
     {
         name: 'РЖД Поездка',
         shortLabel: 'РЖД',
+        shortLabelEn: 'RZD',
         contentKey: 'rzd-trip',
         radius: 31,
         distance: 2521,
@@ -192,6 +206,7 @@ export const projectPlanets = [
     {
         name: 'Подписание документов ЭЦП',
         shortLabel: 'ЭЦП',
+        shortLabelEn: 'E-sign',
         contentKey: 'document-signing-eds',
         radius: 29,
         distance: 2615,
@@ -205,6 +220,7 @@ export const projectPlanets = [
     {
         name: 'Ставки по ипотеке',
         shortLabel: 'Ипотека',
+        shortLabelEn: 'Mortgage',
         contentKey: 'mortgage-rates',
         radius: 27,
         distance: 2703,
@@ -218,6 +234,7 @@ export const projectPlanets = [
     {
         name: 'Расписание политеха',
         shortLabel: 'Политех',
+        shortLabelEn: 'Polytech',
         contentKey: 'polytech-schedule',
         radius: 25,
         distance: 2788,
@@ -231,6 +248,7 @@ export const projectPlanets = [
     {
         name: 'Смысл',
         shortLabel: 'Смысл',
+        shortLabelEn: 'Smysl',
         contentKey: 'smysl',
         radius: 23,
         distance: 2862,
@@ -245,6 +263,7 @@ export const projectPlanets = [
     {
         name: 'Менеджер конференций',
         shortLabel: 'Конференции',
+        shortLabelEn: 'Conferences',
         contentKey: 'conference-manager',
         radius: 21,
         distance: 2935,

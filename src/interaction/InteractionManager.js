@@ -97,6 +97,11 @@ export class InteractionManager {
         this.renderLanguageSwitcher();
         this.updateMobileHintText();
 
+        // Подписи на сцене тоже меняют язык, а не только тексты в панели.
+        this.objectLabels.forEach(({ object, element }) => {
+            element.textContent = object.getShortLabel ? object.getShortLabel(language) : object.name;
+        });
+
         if (this.selectedObject && !this.isAnimatingToPlanet) {
             this.showInfoPanel(this.selectedObject);
         }
@@ -296,7 +301,7 @@ export class InteractionManager {
     createObjectLabel(object) {
         const label = document.createElement('div');
         label.className = 'planet-label';
-        label.textContent = object.getShortLabel ? object.getShortLabel() : object.name;
+        label.textContent = object.getShortLabel ? object.getShortLabel(this.currentLanguage) : object.name;
         label.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -486,7 +491,7 @@ export class InteractionManager {
         this.infoPanel.innerHTML = `
             <div class="portfolio-info-panel__handle" aria-hidden="true"></div>
             <div class="portfolio-info-panel__header">
-                <div class="portfolio-info-panel__title">${object.getShortLabel ? object.getShortLabel() : object.name}</div>
+                <div class="portfolio-info-panel__title">${object.getShortLabel ? object.getShortLabel(this.currentLanguage) : object.name}</div>
                 <div class="portfolio-info-panel__actions">
                     <button type="button" id="goToAboutBtn" class="portfolio-info-panel__btn portfolio-info-panel__btn--about">AboutMe</button>
                     <button type="button" id="closeInfoBtn" class="portfolio-info-panel__btn portfolio-info-panel__btn--close" aria-label="Close">✕</button>

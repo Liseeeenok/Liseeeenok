@@ -9,6 +9,7 @@ export class Planet {
         // Конфигурация планеты
         this.name = config.name || 'Planet';
         this.shortLabel = config.shortLabel || this.name;
+        this.shortLabelEn = config.shortLabelEn || null;
         this.description = config.description || 'A mysterious planet';
         this.contentKey = config.contentKey || this.name.toLowerCase();
         this.radius = config.radius || 50;
@@ -318,7 +319,11 @@ export class Planet {
         return this.description;
     }
 
-    getShortLabel() {
+    getShortLabel(language = 'ru') {
+        if (language === 'en' && this.shortLabelEn) {
+            return this.shortLabelEn;
+        }
+
         return this.shortLabel || this.name;
     }
 

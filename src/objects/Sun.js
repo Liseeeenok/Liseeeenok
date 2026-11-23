@@ -77,6 +77,10 @@ export class Sun {
         return this.sun;
     }
 
+    getShortLabel(language = 'ru') {
+        return language === 'en' ? 'About me' : 'AboutMe';
+    }
+
     getPosition() {
         const worldPos = new THREE.Vector3();
         this.group.getWorldPosition(worldPos);
