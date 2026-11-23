@@ -176,34 +176,6 @@ export const projectPlanets = [
         surfaceType: 'ice'
     },
     {
-        name: 'Занятость залов',
-        shortLabel: 'Залы',
-        shortLabelEn: 'Halls',
-        contentKey: 'hall-occupancy',
-        radius: 33,
-        distance: 2423,
-        texturePath: texture('2k_venus_surface.jpg'),
-        color: 0xd8eef9,
-        emissive: 0x5f7d8d,
-        emissiveIntensity: 0.09,
-        glowColor: 0xf4fcff,
-        surfaceType: 'ice'
-    },
-    {
-        name: 'РЖД Поездка',
-        shortLabel: 'РЖД',
-        shortLabelEn: 'RZD',
-        contentKey: 'rzd-trip',
-        radius: 31,
-        distance: 2521,
-        texturePath: texture('grunge-gray-bubble-art-black-background-diy-style.jpg'),
-        color: 0xc6e6f4,
-        emissive: 0x537181,
-        emissiveIntensity: 0.09,
-        glowColor: 0xeaf8ff,
-        surfaceType: 'ice'
-    },
-    {
         name: 'Подписание документов ЭЦП',
         shortLabel: 'ЭЦП',
         shortLabelEn: 'E-sign',
@@ -215,34 +187,6 @@ export const projectPlanets = [
         emissive: 0x2d3d57,
         emissiveIntensity: 0.08,
         glowColor: 0x94abd7,
-        surfaceType: 'dark'
-    },
-    {
-        name: 'Ставки по ипотеке',
-        shortLabel: 'Ипотека',
-        shortLabelEn: 'Mortgage',
-        contentKey: 'mortgage-rates',
-        radius: 27,
-        distance: 2703,
-        texturePath: texture('2k_moon.jpg'),
-        color: 0x8a8f5b,
-        emissive: 0x42451f,
-        emissiveIntensity: 0.08,
-        glowColor: 0xbec47f,
-        surfaceType: 'dark'
-    },
-    {
-        name: 'Расписание политеха',
-        shortLabel: 'Политех',
-        shortLabelEn: 'Polytech',
-        contentKey: 'polytech-schedule',
-        radius: 25,
-        distance: 2788,
-        texturePath: texture('2k_ceres_fictional.jpg'),
-        color: 0x7d92b1,
-        emissive: 0x34445c,
-        emissiveIntensity: 0.08,
-        glowColor: 0xb0c7e4,
         surfaceType: 'dark'
     },
     {
